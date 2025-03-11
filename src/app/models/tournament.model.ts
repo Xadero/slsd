@@ -31,6 +31,12 @@ export interface Group {
   matches: Match[];
 }
 
+export interface TournamentSeries {
+  id: string;
+  name: string;
+  created_at: Date;
+}
+
 export interface Tournament {
   id: number;
   name: string;
@@ -40,6 +46,8 @@ export interface Tournament {
   knockoutMatches: Match[];
   completed: boolean;
   knockoutStageStarted: boolean;
+  series_id?: string;
+  series_name?: string;
 }
 
 export interface PlayerStanding {

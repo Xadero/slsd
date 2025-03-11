@@ -1,10 +1,14 @@
-import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
-import { Tournament, PlayerRanking } from '../models/tournament.model';
+import { Injectable } from "@angular/core";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { environment } from "../../environments/environment";
+import {
+  Tournament,
+  PlayerRanking,
+  TournamentSeries,
+} from "../models/tournament.model";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
@@ -17,11 +21,11 @@ export class SupabaseService {
         auth: {
           persistSession: false,
           autoRefreshToken: false,
-          detectSessionInUrl: false
+          detectSessionInUrl: false,
         },
         db: {
-          schema: 'public'
-        }
+          schema: "public",
+        },
       }
     );
   }
@@ -31,15 +35,19 @@ export class SupabaseService {
     date: Date;
     data: any;
     completed: boolean;
+    series_id?: string;
   }) {
     const { data, error } = await this.supabase
-      .from('tournaments')
-      .insert([{
-        name: tournament.name,
-        date: tournament.date.toISOString(),
-        data: tournament.data,
-        completed: tournament.completed
-      }])
+      .from("tournaments")
+      .insert([
+        {
+          name: tournament.name,
+          date: tournament.date.toISOString(),
+          data: tournament.data,
+          completed: tournament.completed,
+          series_id: tournament.series_id,
+        },
+      ])
       .select();
 
     if (error) throw error;
@@ -48,9 +56,40 @@ export class SupabaseService {
 
   async getTournaments() {
     const { data, error } = await this.supabase
-      .from('tournaments')
-      .select('*')
-      .order('date', { ascending: false });
+      .from("tournaments")
+      .select(
+        `
+        *,
+        tournament_series (
+          name
+        )
+      `
+      )
+      .order("date", { ascending: false });
+
+    if (error) throw error;
+    return data.map((t) => ({
+      ...t,
+      series_name: t.tournament_series?.name,
+    }));
+  }
+
+  async getTournamentSeries() {
+    const { data, error } = await this.supabase
+      .from("tournament_series")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data;
+  }
+
+  async createTournamentSeries(name: string) {
+    const { data, error } = await this.supabase
+      .from("tournament_series")
+      .insert([{ name }])
+      .select()
+      .single();
 
     if (error) throw error;
     return data;
@@ -58,9 +97,9 @@ export class SupabaseService {
 
   async updatePlayerRankings(rankings: PlayerRanking[]) {
     const { data, error } = await this.supabase
-      .from('player_rankings')
+      .from("player_rankings")
       .upsert(
-        rankings.map(ranking => ({
+        rankings.map((ranking) => ({
           player_id: ranking.player.id,
           player_name: ranking.player.name,
           total_points: ranking.totalPoints,
@@ -74,7 +113,7 @@ export class SupabaseService {
           matches_played: ranking.matchesPlayed,
           legs_played: ranking.legsPlayed,
           legs_won: ranking.legsWon,
-          matches_won: ranking.matchesWon
+          matches_won: ranking.matchesWon,
         }))
       )
       .select();
@@ -85,9 +124,9 @@ export class SupabaseService {
 
   async getPlayerRankings() {
     const { data, error } = await this.supabase
-      .from('player_rankings')
-      .select('*')
-      .order('total_points', { ascending: false });
+      .from("player_rankings")
+      .select("*")
+      .order("total_points", { ascending: false });
 
     if (error) throw error;
     return data;

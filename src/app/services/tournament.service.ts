@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Tournament, Player, Group, Match, PlayerStanding, PlayerRanking } from '../models/tournament.model';
+import { Tournament, Player, Group, Match, PlayerStanding, PlayerRanking, TournamentSeries } from '../models/tournament.model';
 import { SupabaseService } from './supabase.service';
 
 @Injectable({
@@ -10,6 +10,7 @@ export class TournamentService {
   private currentTournament = new BehaviorSubject<Tournament | null>(null);
   private tournamentHistory = new BehaviorSubject<Tournament[]>([]);
   private playerRankings = new BehaviorSubject<PlayerRanking[]>([]);
+  private tournamentSeries = new BehaviorSubject<TournamentSeries[]>([]);
   private readonly CURRENT_TOURNAMENT_KEY = 'currentTournament';
 
   constructor(private supabaseService: SupabaseService) {
@@ -19,17 +20,22 @@ export class TournamentService {
 
   private async loadInitialData() {
     try {
-      const [tournaments, rankings] = await Promise.all([
+      const [tournaments, rankings, series] = await Promise.all([
         this.supabaseService.getTournaments(),
-        this.supabaseService.getPlayerRankings()
+        this.supabaseService.getPlayerRankings(),
+        this.supabaseService.getTournamentSeries()
       ]);
 
       this.tournamentHistory.next(tournaments.map(t => ({
         ...t.data,
         id: t.id,
         name: t.name,
-        date: new Date(t.date)
+        date: new Date(t.date),
+        series_id: t.series_id,
+        series_name: t.series_name
       })));
+
+      this.tournamentSeries.next(series);
 
       const sortedRankings = rankings
         .sort((a, b) => b.total_points - a.total_points)
@@ -79,7 +85,7 @@ export class TournamentService {
     }
   }
 
-  createTournament(name: string, participants: Player[]): void {
+  createTournament(name: string, participants: Player[], seriesId?: string): void {
     const groups = this.createGroups(participants);
     const tournament: Tournament = {
       id: Date.now(),
@@ -89,7 +95,8 @@ export class TournamentService {
       groups,
       knockoutMatches: [],
       completed: false,
-      knockoutStageStarted: false
+      knockoutStageStarted: false,
+      series_id: seriesId
     };
     this.currentTournament.next(tournament);
     this.saveTournamentToStorage(tournament);
@@ -99,33 +106,27 @@ export class TournamentService {
     const numParticipants = participants.length;
     let numGroups: number;
 
-    // Determine optimal number of groups based on participant count
     if (numParticipants <= 8) numGroups = 2;
     else if (numParticipants <= 16) numGroups = 4;
     else numGroups = 8;
 
-    // Create a copy of participants and shuffle them
     const shuffledPlayers = [...participants].sort(() => Math.random() - 0.5);
 
-    // Calculate players per group with front-loading
     const playersPerGroup: number[] = Array(numGroups).fill(0);
     let remainingPlayers = numParticipants;
     let currentGroup = 0;
 
-    // First, ensure minimum players per group (2)
     for (let i = 0; i < numGroups; i++) {
       playersPerGroup[i] = 2;
       remainingPlayers -= 2;
     }
 
-    // Distribute remaining players to groups from start to end
     while (remainingPlayers > 0) {
       playersPerGroup[currentGroup]++;
       remainingPlayers--;
       currentGroup = (currentGroup + 1) % numGroups;
     }
 
-    // Create groups with calculated distribution
     const groups: Group[] = [];
     let playerIndex = 0;
 
@@ -146,26 +147,12 @@ export class TournamentService {
   private createGroupMatches(players: Player[], groupId: number): Match[] {
     const matches: Match[] = [];
     const matchOrder = [
-      [0, 5], // 1-6
-      [4, 1], // 5-2
-      [3, 2], // 4-3
-      [4, 0], // 5-1
-      [5, 2], // 6-3
-      [1, 3], // 2-4
-      [2, 4], // 3-5
-      [3, 5], // 4-6
-      [0, 2], // 1-3
-      [5, 4], // 6-5
-      [2, 1], // 3-2
-      [3, 0], // 4-1
-      [1, 5], // 2-6
-      [4, 3], // 5-4
-      [0, 1]  // 1-2
+      [0, 5], [4, 1], [3, 2], [4, 0], [5, 2], [1, 3],
+      [2, 4], [3, 5], [0, 2], [5, 4], [2, 1], [3, 0],
+      [1, 5], [4, 3], [0, 1]
     ];
 
-    // Create matches according to the specified order
     matchOrder.forEach(([p1Index, p2Index], matchIndex) => {
-      // Skip if either player doesn't exist
       if (p1Index >= players.length || p2Index >= players.length) {
         return;
       }
@@ -397,7 +384,6 @@ export class TournamentService {
     let matchesPlayed = 0;
     let matchesWon = 0;
 
-    // Calculate from group matches
     tournament.groups.forEach(group => {
       group.matches.forEach(match => {
         if (!match.completed) return;
@@ -434,7 +420,6 @@ export class TournamentService {
       });
     });
 
-    // Calculate from knockout matches
     tournament.knockoutMatches.forEach(match => {
       if (!match.completed) return;
 
@@ -482,6 +467,53 @@ export class TournamentService {
     };
   }
 
+  private calculateTournamentPoints(player: Player, tournament: Tournament): number {
+    let points = 0;
+    
+    if (tournament.completed && tournament.knockoutStageStarted) {
+      const finalMatch = tournament.knockoutMatches.find(m => m.round === 'Final' && m.completed);
+      if (finalMatch) {
+        if ((finalMatch.player1.id === player.id && finalMatch.player1Score! > finalMatch.player2Score!) ||
+            (finalMatch.player2.id === player.id && finalMatch.player2Score! > finalMatch.player1Score!)) {
+          return 40;
+        }
+        
+        if (finalMatch.player1.id === player.id || finalMatch.player2.id === player.id) {
+          return 32;
+        }
+      }
+
+      const semiFinalists = tournament.knockoutMatches
+        .filter(m => m.round === 'Semi-Finals' && m.completed)
+        .flatMap(m => [m.player1.id, m.player2.id]);
+      
+      if (semiFinalists.includes(player.id)) {
+        return 24;
+      }
+
+      const quarterFinalists = tournament.knockoutMatches
+        .filter(m => m.round === 'Quarter-Finals' && m.completed)
+        .flatMap(m => [m.player1.id, m.player2.id]);
+      
+      if (quarterFinalists.includes(player.id)) {
+        return 20;
+      }
+    }
+
+    tournament.groups.forEach(group => {
+      const standings = this.getGroupStandings(group);
+      const playerPosition = standings.findIndex(s => s.player.id === player.id);
+      
+      if (playerPosition === 2) {
+        points = 14;
+      } else if (playerPosition >= 3) {
+        points = 8;
+      }
+    });
+
+    return points;
+  }
+
   private async updatePlayerRankings(tournament: Tournament): Promise<void> {
     const currentRankings = this.playerRankings.value;
     const previousRanks = new Map(currentRankings.map(r => [r.player.id, r.currentRank]));
@@ -502,8 +534,8 @@ export class TournamentService {
           totalPoints
         },
         totalPoints,
-        rankChange: 0, // Temporary value, will be updated after sorting
-        currentRank: 0, // Temporary value, will be updated after sorting
+        rankChange: 0,
+        currentRank: 0,
         tournamentPoints: [...oldTournamentPoints, tournamentPoints],
         total180s: (oldRanking?.total180s || 0) + stats.total180s,
         total171s: (oldRanking?.total171s || 0) + stats.total171s,
@@ -514,12 +546,11 @@ export class TournamentService {
         legsPlayed: (oldRanking?.legsPlayed || 0) + stats.legsPlayed,
         legsWon: (oldRanking?.legsWon || 0) + stats.legsWon,
         matchesWon: (oldRanking?.matchesWon || 0) + stats.matchesWon,
-        wonLegsPercentage: 0, // Will be calculated after sorting
-        wonMatchesPercentage: 0 // Will be calculated after sorting
+        wonLegsPercentage: 0,
+        wonMatchesPercentage: 0
       });
     });
 
-    // Add players who didn't participate in this tournament
     currentRankings.forEach(ranking => {
       if (!newRankings.some(r => r.player.id === ranking.player.id)) {
         newRankings.push({
@@ -530,7 +561,6 @@ export class TournamentService {
       }
     });
 
-    // Sort by total points and calculate rank changes and percentages
     newRankings.sort((a, b) => b.totalPoints - a.totalPoints);
     newRankings.forEach((ranking, index) => {
       const currentRank = index + 1;
@@ -538,7 +568,6 @@ export class TournamentService {
       ranking.currentRank = currentRank;
       ranking.rankChange = previousRank - currentRank;
       
-      // Calculate percentages
       ranking.wonLegsPercentage = ranking.legsPlayed > 0 
         ? (ranking.legsWon / ranking.legsPlayed) * 100 
         : 0;
@@ -557,58 +586,6 @@ export class TournamentService {
     }
   }
 
-  private calculateTournamentPoints(player: Player, tournament: Tournament): number {
-    let points = 0;
-    
-    // Find the player's final position
-    if (tournament.completed && tournament.knockoutStageStarted) {
-      // Check if player won the tournament (1st place)
-      const finalMatch = tournament.knockoutMatches.find(m => m.round === 'Final' && m.completed);
-      if (finalMatch) {
-        if ((finalMatch.player1.id === player.id && finalMatch.player1Score! > finalMatch.player2Score!) ||
-            (finalMatch.player2.id === player.id && finalMatch.player2Score! > finalMatch.player1Score!)) {
-          return 40; // Winner gets 40 points
-        }
-        
-        if (finalMatch.player1.id === player.id || finalMatch.player2.id === player.id) {
-          return 32; // Runner-up gets 32 points
-        }
-      }
-
-      // Check for semi-finalists (3rd-4th place)
-      const semiFinalists = tournament.knockoutMatches
-        .filter(m => m.round === 'Semi-Finals' && m.completed)
-        .flatMap(m => [m.player1.id, m.player2.id]);
-      
-      if (semiFinalists.includes(player.id)) {
-        return 24; // Semi-finalists get 24 points
-      }
-
-      // Check for quarter-finalists (5th-8th place)
-      const quarterFinalists = tournament.knockoutMatches
-        .filter(m => m.round === 'Quarter-Finals' && m.completed)
-        .flatMap(m => [m.player1.id, m.player2.id]);
-      
-      if (quarterFinalists.includes(player.id)) {
-        return 20; // Quarter-finalists get 20 points
-      }
-    }
-
-    // Group stage points
-    tournament.groups.forEach(group => {
-      const standings = this.getGroupStandings(group);
-      const playerPosition = standings.findIndex(s => s.player.id === player.id);
-      
-      if (playerPosition === 2) {
-        points = 14; // 3rd place in group stage
-      } else if (playerPosition >= 3) {
-        points = 8; // 4th-6th place in group stage
-      }
-    });
-
-    return points;
-  }
-
   getCurrentTournament(): Observable<Tournament | null> {
     return this.currentTournament.asObservable();
   }
@@ -621,7 +598,21 @@ export class TournamentService {
     return this.playerRankings.asObservable();
   }
 
-    abandonTournament(): void {
+  getTournamentSeries(): Observable<TournamentSeries[]> {
+    return this.tournamentSeries.asObservable();
+  }
+
+  async createTournamentSeries(name: string): Promise<void> {
+    try {
+      const newSeries = await this.supabaseService.createTournamentSeries(name);
+      this.tournamentSeries.next([...this.tournamentSeries.value, newSeries]);
+    } catch (error) {
+      console.error('Error creating tournament series:', error);
+      throw error;
+    }
+  }
+
+  abandonTournament(): void {
     this.currentTournament.next(null);
     this.saveTournamentToStorage(null);
   }

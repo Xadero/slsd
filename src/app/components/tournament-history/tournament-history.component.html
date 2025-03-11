@@ -1,0 +1,87 @@
+<div class="history-container">
+    <h2>Tournament History</h2>
+
+    <div class="tournaments-list">
+        <div *ngFor="let tournament of tournaments" class="tournament-card" (click)="openTournamentDetails(tournament)">
+            <div class="tournament-header">
+                <h3>{{ tournament.name }}</h3>
+                <span class="date">{{ tournament.date | date:'mediumDate' }}</span>
+            </div>
+
+            <div class="tournament-stats">
+                <div class="stat">
+                    <span class="label">Players:</span>
+                    <span class="value">{{ tournament.participants.length }}</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Groups:</span>
+                    <span class="value">{{ tournament.groups.length }}</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Winner:</span>
+                    <span class="value">{{ getWinner(tournament)?.name || 'N/A' }}</span>
+                </div>
+            </div>
+
+            <div class="tournament-details">
+                <h4>Top 3 Players</h4>
+                <ol class="top-players">
+                    <li *ngFor="let player of getTopPlayers(tournament)">
+                        {{ player.name }} - {{ getPlayerPoints(tournament, player) }} points
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="rankings-container">
+        <h2>Overall Rankings</h2>
+        <div class="table-container">
+            <table class="rankings-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Total Points</th>
+                        <th *ngFor="let tournament of tournaments; let i = index">T{{ i + 1 }}</th>
+                        <th>180s</th>
+                        <th>171s</th>
+                        <th>HF</th>
+                        <th>BL</th>
+                        <th>Leg +/-</th>
+                        <th>Matches</th>
+                        <th>Legs</th>
+                        <th>Won Legs %</th>
+                        <th>Won Matches %</th>
+                        <th>Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let ranking of playerRankings; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ ranking.player.name }}</td>
+                        <td>{{ ranking.totalPoints }}</td>
+                        <td *ngFor="let tournament of tournaments; let j = index">
+                            {{ ranking.tournamentPoints[j] || '-' }}
+                        </td>
+                        <td>{{ ranking.total180s }}</td>
+                        <td>{{ ranking.total171s }}</td>
+                        <td>{{ ranking.highestFinish }}</td>
+                        <td>{{ ranking.bestLeg }}</td>
+                        <td>{{ ranking.legDifference }}</td>
+                        <td>{{ ranking.matchesPlayed }}</td>
+                        <td>{{ ranking.legsPlayed }}</td>
+                        <td>{{ ranking.wonLegsPercentage | number:'1.1-1' }}%</td>
+                        <td>{{ ranking.wonMatchesPercentage | number:'1.1-1' }}%</td>
+                        <td>
+                            <span [class.up]="ranking.rankChange > 0" [class.down]="ranking.rankChange < 0">
+                  {{ ranking.rankChange > 0 ? '↑' : ranking.rankChange < 0 ? '↓' : '-' }}
+                  {{ ranking.rankChange !== 0 ? Math.abs(ranking.rankChange) : '' }}
+                </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

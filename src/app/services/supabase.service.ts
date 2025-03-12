@@ -11,7 +11,7 @@ import {
   providedIn: "root",
 })
 export class SupabaseService {
-  private supabase: SupabaseClient;
+  public supabase: SupabaseClient;
 
   constructor() {
     this.supabase = createClient(

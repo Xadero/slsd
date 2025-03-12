@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Dialog } from "@angular/cdk/dialog";
 import { TournamentService } from "../../services/tournament.service";
@@ -13,7 +13,7 @@ import { TournamentDialogComponent } from "../tournament-dialog/tournament-dialo
   styleUrl: "./tournament-history.component.scss",
 })
 export class TournamentHistoryComponent implements OnInit {
-  tournaments: Tournament[] = [];
+  tournaments = input<Tournament[]>();
   playerRankings: PlayerRanking[] = [];
   Math = Math;
 
@@ -23,9 +23,7 @@ export class TournamentHistoryComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.tournamentService
-      .getTournamentHistory()
-      .subscribe((tournaments) => (this.tournaments = tournaments));
+
     this.tournamentService
       .getPlayerRankings()
       .subscribe((rankings) => (this.playerRankings = rankings));

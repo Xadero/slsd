@@ -1,0 +1,185 @@
+.knockout-container {
+    padding: 20px;
+    overflow-x: auto;
+}
+
+.bracket {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    min-width: fit-content;
+    padding: 20px 0;
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+    position: relative;
+}
+
+.round-header {
+    text-align: center;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.matches {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.match-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.connector {
+    position: absolute;
+    right: -40px;
+    width: 40px;
+    height: 2px;
+    background: #ddd;
+    z-index: 1;
+}
+
+.match {
+    flex: 1;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.match.completed {
+    border-color: #28a745;
+}
+
+.match-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.player-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.player.winner {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.seed {
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    border-radius: 50%;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.name {
+    flex: 1;
+}
+
+.score-input {
+    width: 50px;
+}
+
+.score-input input {
+    width: 100%;
+    padding: 4px 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.score {
+    width: 50px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+.btn-small:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.finals {
+    min-width: 320px;
+}
+
+.finals-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.final-match .match {
+    border-color: #ffd700;
+}
+
+.final-match .match.completed {
+    border-color: #28a745;
+}
+
+.third-place-match .match {
+    border-color: #cd7f32;
+}
+
+.third-place-match .match.completed {
+    border-color: #28a745;
+}
+
+@media (max-width: 1200px) {
+    .knockout-container {
+        padding: 10px;
+    }
+    .bracket {
+        gap: 20px;
+    }
+    .round {
+        min-width: 280px;
+    }
+    .connector {
+        right: -20px;
+        width: 20px;
+    }
+}

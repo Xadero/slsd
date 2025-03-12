@@ -1,0 +1,173 @@
+<div class="knockout-container">
+    <div class="bracket">
+        <!-- Round of 16 -->
+        <div class="round" *ngIf="hasRoundOf16()">
+            <div class="round-header">Round of 16</div>
+            <div class="matches">
+                <div class="match-wrapper" *ngFor="let match of getRoundMatches('Round-16'); let i = index">
+                    <div class="match" [class.completed]="match.completed">
+                        <div class="match-pair">
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="name">{{ match.player1.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player1Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player1Score }}</div>
+                            </div>
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player2)">
+                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="name">{{ match.player2.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player2Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player2Score }}</div>
+                            </div>
+                        </div>
+                        <button *ngIf="!match.completed" (click)="submitResult(match)" class="btn-small" [disabled]="!isValidScore(match)">✓</button>
+                    </div>
+                    <div class="connector"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quarter Finals -->
+        <div class="round">
+            <div class="round-header">Quarter Finals</div>
+            <div class="matches">
+                <div class="match-wrapper" *ngFor="let match of getRoundMatches('Quarter-Finals'); let i = index">
+                    <div class="match" [class.completed]="match.completed">
+                        <div class="match-pair">
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="name">{{ match.player1.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player1Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player1Score }}</div>
+                            </div>
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player2)">
+                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="name">{{ match.player2.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player2Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player2Score }}</div>
+                            </div>
+                        </div>
+                        <button *ngIf="!match.completed" (click)="submitResult(match)" class="btn-small" [disabled]="!isValidScore(match)">✓</button>
+                    </div>
+                    <div class="connector"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semi Finals -->
+        <div class="round">
+            <div class="round-header">Semi Finals</div>
+            <div class="matches">
+                <div class="match-wrapper" *ngFor="let match of getRoundMatches('Semi-Finals'); let i = index">
+                    <div class="match" [class.completed]="match.completed">
+                        <div class="match-pair">
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="name">{{ match.player1.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player1Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player1Score }}</div>
+                            </div>
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player2)">
+                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="name">{{ match.player2.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player2Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player2Score }}</div>
+                            </div>
+                        </div>
+                        <button *ngIf="!match.completed" (click)="submitResult(match)" class="btn-small" [disabled]="!isValidScore(match)">✓</button>
+                    </div>
+                    <div class="connector"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finals -->
+        <div class="round finals">
+            <div class="finals-container">
+                <!-- Final -->
+                <div class="final-match">
+                    <div class="round-header">Final</div>
+                    <div class="match" *ngIf="getFinalMatch() as match" [class.completed]="match.completed">
+                        <div class="match-pair">
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="name">{{ match.player1.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player1Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player1Score }}</div>
+                            </div>
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player2)">
+                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="name">{{ match.player2.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player2Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player2Score }}</div>
+                            </div>
+                        </div>
+                        <button *ngIf="!match.completed" (click)="submitResult(match)" class="btn-small" [disabled]="!isValidScore(match)">✓</button>
+                    </div>
+                </div>
+
+                <!-- Third Place -->
+                <div class="third-place-match">
+                    <div class="round-header">Third Place</div>
+                    <div class="match" *ngIf="getThirdPlaceMatch() as match" [class.completed]="match.completed">
+                        <div class="match-pair">
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="name">{{ match.player1.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player1Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player1Score }}</div>
+                            </div>
+                            <div class="player-row">
+                                <div class="player" [class.winner]="isWinner(match, match.player2)">
+                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="name">{{ match.player2.name }}</span>
+                                </div>
+                                <div class="score-input" *ngIf="!match.completed">
+                                    <input type="number" [(ngModel)]="match.player2Score" class="score-input">
+                                </div>
+                                <div class="score" *ngIf="match.completed">{{ match.player2Score }}</div>
+                            </div>
+                        </div>
+                        <button *ngIf="!match.completed" (click)="submitResult(match)" class="btn-small" [disabled]="!isValidScore(match)">✓</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

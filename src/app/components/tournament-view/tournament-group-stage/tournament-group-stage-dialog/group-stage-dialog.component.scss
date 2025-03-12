@@ -1,0 +1,19 @@
+.radio-group {
+    display: flex;
+    flex-direction: column;
+}
+
+mat-dialog-content {
+    font-size: 16px;
+    padding: 0 20px 0 20px !important;
+}
+
+.title {
+    padding: 20px 0 0 20px
+}
+
+.content {
+    padding: 0 20px 0 20px;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}

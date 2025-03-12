@@ -1,0 +1,14 @@
+<h2 class="title">Drabinka</h2>
+<mat-dialog-content>
+    <div class="content">
+        <p>Wybierz ile osób przechodzi do drabinki:</p>
+        <mat-radio-group [(ngModel)]="qualifyingPlayers" class="radio-group">
+            <mat-radio-button [value]="8">8 (Ćwierćfinały)</mat-radio-button>
+            <mat-radio-button [value]="16">16 (Last 17)</mat-radio-button>
+        </mat-radio-group>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="close()">Wróć</button>
+    <button mat-button (click)="confirm()">Potwierdź</button>
+</mat-dialog-actions>

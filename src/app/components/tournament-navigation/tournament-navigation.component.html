@@ -1,0 +1,24 @@
+<div class="tournament-nav">
+    <a class="nav-link" (mouseenter)="openDropdown()" (mouseleave)="closeDropdown()">
+      Tournaments
+      <div class="dropdown" *ngIf="isDropdownOpen">
+        <div class="series-list">
+          <div *ngFor="let series of tournamentSeries" class="series-item">
+            <div class="series-header" (mouseenter)="expandSeries(series)" (click)="openSeriesDetails(series)">
+              {{ series.name }}
+              <span class="arrow">›</span>
+            </div>
+            
+            <div class="tournaments-list" *ngIf="expandedSeries?.id === series.id">
+              <div *ngFor="let tournament of getTournamentsBySeries(series)" 
+                   class="tournament-item"
+                   (click)="openTournamentDetails(tournament)">
+                {{ tournament.name }}
+                <span class="date">{{ tournament.date | date:'shortDate' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+</div>

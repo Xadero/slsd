@@ -1,5 +1,22 @@
-<div class="app-container">
-    <h1>Darts Tournament Manager</h1>
-    <app-tournament-view></app-tournament-view>
-    <app-tournament-history></app-tournament-history>
-</div>
+<header class="header">
+    <div class="header-content">
+        <div class="logo">
+            <h1 (click)="showLastSeries()" style="cursor: pointer">Darts Tournament Manager</h1>
+        </div>
+        <nav class="navigation">
+            <app-tournament-navigation></app-tournament-navigation>
+            <button class="nav-link" (click)="showNewTournament()">Create Tournament</button>
+            <a href="#" class="nav-link">Championships</a>
+            <a href="#" class="nav-link">Dart Academy</a>
+            <a href="#" class="nav-link">Snipers</a>
+            <a href="#" class="nav-link highlight">Become a Partner</a>
+        </nav>
+    </div>
+</header>
+<main class="main-content">
+    <div class="app-container">
+        <app-tournament-details *ngIf="selectedTournament && !showTournamentCreation && !isNewTournament"></app-tournament-details>
+        <app-series-view *ngIf="!showTournamentCreation && !selectedTournament && selectedSeries"></app-series-view>
+        <app-tournament-view *ngIf="showTournamentCreation || (!selectedTournament && !selectedSeries) || isNewTournament"></app-tournament-view>
+    </div>
+</main>

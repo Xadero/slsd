@@ -19,9 +19,10 @@ export class SupabaseService {
       environment.supabaseKey,
       {
         auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false,
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: localStorage
         },
         db: {
           schema: "public",

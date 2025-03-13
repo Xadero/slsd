@@ -9,7 +9,7 @@
                         <div class="match-pair">
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player1)">
-                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player1) | async }}</span>
                                     <span class="name">{{ match.player1.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -19,7 +19,7 @@
                             </div>
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player2)">
-                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player2) | async }}</span>
                                     <span class="name">{{ match.player2.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -44,7 +44,7 @@
                         <div class="match-pair">
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player1)">
-                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player1) | async }}</span>
                                     <span class="name">{{ match.player1.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -54,7 +54,7 @@
                             </div>
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player2)">
-                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player2) | async }}</span>
                                     <span class="name">{{ match.player2.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -71,15 +71,15 @@
         </div>
 
         <!-- Semi Finals -->
-        <div class="round">
+        <div class="round" style="padding-top: 75px;">
             <div class="round-header">Semi Finals</div>
-            <div class="matches">
+            <div class="matches" style="gap: 180px">
                 <div class="match-wrapper" *ngFor="let match of getRoundMatches('Semi-Finals'); let i = index">
                     <div class="match" [class.completed]="match.completed">
                         <div class="match-pair">
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player1)">
-                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="seed">{{ (getPlayerSeed(match.player1) | async) }}</span>
                                     <span class="name">{{ match.player1.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -89,7 +89,7 @@
                             </div>
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player2)">
-                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player2) | async }}</span>
                                     <span class="name">{{ match.player2.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -106,7 +106,7 @@
         </div>
 
         <!-- Finals -->
-        <div class="round finals">
+        <div class="round finals" style="padding-top: 200px;">
             <div class="finals-container">
                 <!-- Final -->
                 <div class="final-match">
@@ -115,7 +115,7 @@
                         <div class="match-pair">
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player1)">
-                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player1) | async }}</span>
                                     <span class="name">{{ match.player1.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -125,7 +125,7 @@
                             </div>
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player2)">
-                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player2) | async }}</span>
                                     <span class="name">{{ match.player2.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -145,7 +145,7 @@
                         <div class="match-pair">
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player1)">
-                                    <span class="seed">{{ getPlayerSeed(match.player1) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player1) | async }}</span>
                                     <span class="name">{{ match.player1.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">
@@ -155,7 +155,7 @@
                             </div>
                             <div class="player-row">
                                 <div class="player" [class.winner]="isWinner(match, match.player2)">
-                                    <span class="seed">{{ getPlayerSeed(match.player2) }}</span>
+                                    <span class="seed">{{ getPlayerSeed(match.player2) | async }}</span>
                                     <span class="name">{{ match.player2.name }}</span>
                                 </div>
                                 <div class="score-input" *ngIf="!match.completed">

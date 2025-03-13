@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import {Component, OnInit, OnDestroy, output} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TournamentService } from "../../services/tournament.service";
 import { Tournament, TournamentSeries } from "../../models/tournament.model";
@@ -18,6 +18,9 @@ export class TournamentNavigationComponent implements OnInit, OnDestroy {
   isDropdownOpen = false;
   expandedSeries: TournamentSeries | null = null;
   private closeTimeout: any;
+  private isCreatingTournament = false;
+  selectTournamentDetails = output<Tournament>();
+  selectSeriesDetails = output<TournamentSeries>();
 
   constructor(
     private tournamentService: TournamentService,
@@ -31,6 +34,14 @@ export class TournamentNavigationComponent implements OnInit, OnDestroy {
 
     this.tournamentService.getTournamentHistory().subscribe((tournaments) => {
       this.tournaments = tournaments;
+    });
+
+    // Subscribe to current tournament to detect creation mode
+    this.tournamentService.getCurrentTournament().subscribe(tournament => {
+      // If there's a tournament that's not completed and not in history, we're in creation mode
+      this.isCreatingTournament = tournament !== null &&
+          !tournament.completed &&
+          !this.tournaments.some(t => t.id === tournament.id);
     });
   }
 
@@ -66,14 +77,15 @@ export class TournamentNavigationComponent implements OnInit, OnDestroy {
   }
 
   openTournamentDetails(tournament: Tournament) {
-    this.tournamentService.setCurrentTournament(tournament);
+    this.selectTournamentDetails.emit(tournament);
     this.isDropdownOpen = false;
     this.expandedSeries = null;
   }
 
   openSeriesDetails(series: TournamentSeries) {
-    this.tournamentService.setCurrentSeries(series);
-    this.tournamentService.setCurrentTournament(null);
+    this.selectSeriesDetails.emit(series);
+    // this.tournamentService.setCurrentSeries(series);
+    // this.tournamentService.setCurrentTournament(null);
     this.isDropdownOpen = false;
     this.expandedSeries = null;
   }

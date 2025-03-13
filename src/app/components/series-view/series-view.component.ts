@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import {Component, input, OnInit} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TournamentService } from "../../services/tournament.service";
 import {
@@ -17,11 +17,7 @@ import { TournamentHistoryComponent } from "../tournament-history/tournament-his
   styleUrls: ["./series-view.component.scss"],
 })
 export class SeriesViewComponent implements OnInit {
-  getRankingPoints(ranking: PlayerRanking, points: string | number) {
-    console.log(ranking);
-    throw new Error("Method not implemented.");
-  }
-  series: TournamentSeries | null = null;
+  series = input.required<TournamentSeries>();
   seriesTournaments: Tournament[] = [];
   seriesRankings: PlayerRanking[] = [];
   Math = Math;
@@ -32,12 +28,9 @@ export class SeriesViewComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.tournamentService.getCurrentSeries().subscribe((series) => {
-      this.series = series;
-      if (series) {
-        this.loadSeriesData(series.id);
-      }
-    });
+    if(!!this.series()) {
+      this.loadSeriesData(this.series().id)
+    }
   }
 
   private loadSeriesData(seriesId: string) {

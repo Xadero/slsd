@@ -1,8 +1,7 @@
-<div class="tournament-view">
-    <!-- Complete Group Stage Button -->
+@if(areAllMatchesCompleted()) {
     <button class="btn primary" (click)="openModal()">Complete Group Stage</button>
-
-    <!-- Groups Container -->
+}
+<div class="tournament-view">
     <div class="groups-container">
         <div *ngFor="let group of tournament.groups" class="group">
             <h2>Group {{ group.id + 1 }}</h2>

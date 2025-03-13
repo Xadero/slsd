@@ -12,21 +12,34 @@ export class AuthService {
 
   constructor(private supabaseService: SupabaseService) {
     this.initializeAuth();
+    // Subscribe to auth state changes
+    this.supabaseService.supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        this.currentUser.next(session.user);
+        this.checkAdminRole(session.user);
+      } else {
+        this.currentUser.next(null);
+        this.isAdmin.next(false);
+      }
+    });
   }
 
   private async initializeAuth() {
-    const { data: { user } } = await this.supabaseService.supabase.auth.getUser();
-    this.currentUser.next(user);
-    
-    if (user) {
-      const { data: roles } = await this.supabaseService.supabase
+    const { data: { session } } = await this.supabaseService.supabase.auth.getSession();
+    if (session?.user) {
+      this.currentUser.next(session.user);
+      await this.checkAdminRole(session.user);
+    }
+  }
+
+  private async checkAdminRole(user: User) {
+    const { data: roles } = await this.supabaseService.supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .single();
-      
-      this.isAdmin.next(roles?.role === 'admin');
-    }
+
+    this.isAdmin.next(roles?.role === 'admin');
   }
 
   async signUp(email: string, password: string): Promise<void> {
@@ -41,13 +54,6 @@ export class AuthService {
     const { error } = await this.supabaseService.supabase.auth.signInWithPassword({
       email,
       password
-    });
-    if (error) throw error;
-  }
-
-  async signInWithGithub(): Promise<void> {
-    const { error } = await this.supabaseService.supabase.auth.signInWithOAuth({
-      provider: 'github'
     });
     if (error) throw error;
   }

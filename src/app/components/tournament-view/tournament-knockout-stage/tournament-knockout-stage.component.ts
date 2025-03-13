@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Tournament, Match, Player } from "../../../models/tournament.model";
+import { TournamentService } from "../../../services/tournament.service";
+import { map, Observable, of, switchMap } from "rxjs";
 
 @Component({
   selector: "app-tournament-knockout-stage",
@@ -14,6 +16,7 @@ export class TournamentKnockoutStageComponent {
   @Input() matches: Match[] = [];
   @Input() onSubmitResult!: (match: Match) => void;
 
+  constructor(private tournamentService: TournamentService) {}
   hasRoundOf16(): boolean {
     return this.matches.some((m) => m.round === "Round-16");
   }
@@ -30,8 +33,24 @@ export class TournamentKnockoutStageComponent {
     return this.matches.find((m) => m.round === "Third-Place");
   }
 
-  getPlayerSeed(player: Player): number {
-    return player.id || 1;
+  getPlayerSeed(player: Player): Observable<string> {
+    return this.tournamentService.getCurrentTournament().pipe(
+      switchMap((tournament) => {
+        if (!!tournament && !!tournament.series_id) {
+          return this.tournamentService
+            .getSeriesRankings(tournament.series_id)
+            .pipe(
+              map((rankings) => {
+                const playerIndex = rankings.findIndex(
+                  (rank) => player.id === rank.player.id
+                );
+                return playerIndex !== -1 ? (playerIndex + 1).toString() : "-";
+              })
+            );
+        }
+        return of("-");
+      })
+    );
   }
 
   isWinner(match: Match, player: Player): boolean {

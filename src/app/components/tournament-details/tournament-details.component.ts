@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import {Component, input, OnInit} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TournamentService } from "../../services/tournament.service";
 import {
@@ -14,11 +14,11 @@ import {
   template: `
     <div class="tournament-details-container" *ngIf="tournament">
       <div class="tournament-header">
-        <h1>{{ tournament.name }}</h1>
+        <h1>{{ tournament().name }}</h1>
         <div class="tournament-meta">
-          <span class="date">{{ tournament.date | date : "mediumDate" }}</span>
-          <span class="series" *ngIf="tournament.series_name"
-            >Series: {{ tournament.series_name }}</span
+          <span class="date">{{ tournament().date | date : "mediumDate" }}</span>
+          <span class="series" *ngIf="tournament().series_name"
+            >Series: {{ tournament().series_name }}</span
           >
         </div>
       </div>
@@ -77,7 +77,7 @@ import {
         <div class="section">
           <h3>Group Stage Results</h3>
           <div class="groups-grid">
-            <div *ngFor="let group of tournament.groups" class="group-results">
+            <div *ngFor="let group of tournament().groups" class="group-results">
               <h4>Group {{ group.id + 1 }}</h4>
               <table class="results-table">
                 <thead>
@@ -104,7 +104,7 @@ import {
         </div>
 
         <!-- Knockout Stage Results -->
-        <div *ngIf="tournament.knockoutStageStarted" class="section">
+        <div *ngIf="tournament().knockoutStageStarted" class="section">
           <h3>Knockout Stage Results</h3>
           <div class="knockout-results">
             <div
@@ -156,7 +156,7 @@ import {
           <h3>Player Statistics</h3>
           <div class="player-stats-grid">
             <div
-              *ngFor="let player of tournament.participants"
+              *ngFor="let player of tournament().participants"
               class="player-stat-card"
             >
               <h4>{{ player.name }}</h4>
@@ -342,20 +342,18 @@ import {
   ],
 })
 export class TournamentDetailsComponent implements OnInit {
-  tournament: Tournament | null = null;
+  tournament = input.required<Tournament>();
 
   constructor(private tournamentService: TournamentService) {}
 
   ngOnInit() {
-    this.tournamentService.getCurrentTournament().subscribe((tournament) => {
-      this.tournament = tournament;
-    });
+
   }
 
   getTournamentRankings(): Player[] {
     if (!this.tournament) return [];
 
-    return [...this.tournament.participants].sort((a, b) => {
+    return [...this.tournament().participants].sort((a, b) => {
       const pointsA = this.getTournamentPoints(a);
       const pointsB = this.getTournamentPoints(b);
       return pointsB - pointsA;
@@ -363,12 +361,12 @@ export class TournamentDetailsComponent implements OnInit {
   }
 
   getTournamentPoints(player: Player): number {
-    if (!this.tournament) return 0;
+    if (!this.tournament()) return 0;
 
     let points = 0;
 
-    if (this.tournament.completed && this.tournament.knockoutStageStarted) {
-      const finalMatch = this.tournament.knockoutMatches.find(
+    if (this.tournament().completed && this.tournament().knockoutStageStarted) {
+      const finalMatch = this.tournament().knockoutMatches.find(
         (m) => m.round === "Final" && m.completed
       );
       if (finalMatch) {
@@ -389,7 +387,7 @@ export class TournamentDetailsComponent implements OnInit {
         }
       }
 
-      const semiFinalists = this.tournament.knockoutMatches
+      const semiFinalists = this.tournament().knockoutMatches
         .filter((m) => m.round === "Semi-Finals" && m.completed)
         .flatMap((m) => [m.player1.id, m.player2.id]);
 
@@ -397,7 +395,7 @@ export class TournamentDetailsComponent implements OnInit {
         return 24;
       }
 
-      const quarterFinalists = this.tournament.knockoutMatches
+      const quarterFinalists = this.tournament().knockoutMatches
         .filter((m) => m.round === "Quarter-Finals" && m.completed)
         .flatMap((m) => [m.player1.id, m.player2.id]);
 
@@ -405,7 +403,7 @@ export class TournamentDetailsComponent implements OnInit {
         return 20;
       }
 
-      const roundOf16Players = this.tournament.knockoutMatches
+      const roundOf16Players = this.tournament().knockoutMatches
         .filter((m) => m.round === "Round-16" && m.completed)
         .flatMap((m) => [m.player1.id, m.player2.id]);
 
@@ -414,7 +412,7 @@ export class TournamentDetailsComponent implements OnInit {
       }
     }
 
-    this.tournament.groups.forEach((group) => {
+    this.tournament().groups.forEach((group) => {
       const standings = this.getGroupStandings(group);
       const playerPosition = standings.findIndex(
         (s) => s.player.id === player.id
@@ -436,7 +434,7 @@ export class TournamentDetailsComponent implements OnInit {
 
   getMatchesByRound(round: string): any[] {
     return (
-      this.tournament?.knockoutMatches.filter((m) => m.round === round) || []
+      this.tournament()?.knockoutMatches.filter((m) => m.round === round) || []
     );
   }
 
@@ -477,7 +475,7 @@ export class TournamentDetailsComponent implements OnInit {
     let matchesWon = 0;
 
     // Calculate from group matches
-    this.tournament.groups.forEach((group) => {
+    this.tournament().groups.forEach((group) => {
       group.matches.forEach((match) => {
         if (!match.completed) return;
 
@@ -528,7 +526,7 @@ export class TournamentDetailsComponent implements OnInit {
     });
 
     // Calculate from knockout matches
-    this.tournament.knockoutMatches.forEach((match) => {
+    this.tournament().knockoutMatches.forEach((match) => {
       if (!match.completed) return;
 
       if (match.player1.id === player.id) {

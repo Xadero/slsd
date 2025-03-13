@@ -1,5 +1,5 @@
 <div class="tournament-container">
-    <!-- Tournament Creation -->
+    @if (!tournament || !isAdminUser()) {
     <div *ngIf="!tournament" class="create-tournament">
         <h2>Create New Tournament</h2>
         <div class="form-group">
@@ -77,41 +77,46 @@
         </button>
     </div>
 
+    }
+
     <!-- Active Tournament View -->
-    <div *ngIf="tournament">
-        <h1>{{ tournament.name }}</h1>
-        <div class="tournament-actions">
-            <button (click)="abandonTournament()" class="btn danger">
-                Abandon Tournament
-            </button>
-            <button *ngIf="tournament.knockoutStageStarted" (click)="returnToGroupStage()" class="btn">
-                Return to Group Stage
-            </button>
-        </div>
+    @if(tournament) {
+        <div *ngIf="tournament">
+            <h1>{{ tournament.name }}</h1>
+            <div class="tournament-actions">
+                <button (click)="abandonTournament()" class="btn danger">
+                    Abandon Tournament
+                </button>
+                <button *ngIf="tournament.knockoutStageStarted" (click)="returnToGroupStage()" class="btn">
+                    Return to Group Stage
+                </button>
+            </div>
 
-        <!-- Toggle List View Button -->
-        <div class="view-controls">
-            <button class="btn" (click)="showMatchesList = !showMatchesList">
-                {{ showMatchesList ? 'Hide' : 'Show' }} Matches List
-            </button>
-        </div>
+            <!-- Toggle List View Button -->
+            <div class="view-controls">
+                <button class="btn" (click)="showMatchesList = !showMatchesList">
+                    {{ showMatchesList ? 'Hide' : 'Show' }} Matches List
+                </button>
+            </div>
 
-        <!-- Group Stage -->
-        <app-group-stage *ngIf="!tournament.knockoutStageStarted" [tournament]="tournament" [showMatchesList]="showMatchesList" (onMatchUpdate)="handleMatchUpdate($event)" (onGroupStageComplete)="handleGroupStageComplete($event)">
-        </app-group-stage>
+            <!-- Group Stage -->
+            <app-group-stage *ngIf="!tournament.knockoutStageStarted" [tournament]="tournament" [showMatchesList]="showMatchesList" (onMatchUpdate)="handleMatchUpdate($event)" (onGroupStageComplete)="handleGroupStageComplete($event)">
+            </app-group-stage>
 
-        <!-- Knockout Stage -->
-        <div *ngIf="tournament.knockoutStageStarted" class="knockout-stage">
-            <h2>Knockout Stage</h2>
-            <app-tournament-knockout-stage [matches]="tournament.knockoutMatches" [onSubmitResult]="onSubmitKnockoutResult.bind(this)">
-            </app-tournament-knockout-stage>
-        </div>
+            <!-- Knockout Stage -->
+            <div *ngIf="tournament.knockoutStageStarted" class="knockout-stage">
+                <h2>Knockout Stage</h2>
+                <app-tournament-knockout-stage [matches]="tournament.knockoutMatches" [onSubmitResult]="onSubmitKnockoutResult.bind(this)">
+                </app-tournament-knockout-stage>
+            </div>
 
-        <!-- Tournament Controls -->
-        <div class="tournament-controls">
-            <button *ngIf="canCompleteTournament()" (click)="completeTournament()" class="btn primary">
-                Complete Tournament
-            </button>
+            <!-- Tournament Controls -->
+            <div class="tournament-controls">
+                <button *ngIf="canCompleteTournament()" (click)="completeTournament()" class="btn primary">
+                    Complete Tournament
+                </button>
+            </div>
         </div>
-    </div>
+    }
+
 </div>

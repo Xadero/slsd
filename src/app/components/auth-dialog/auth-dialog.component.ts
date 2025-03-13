@@ -3,23 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogRef } from '@angular/cdk/dialog';
 import { AuthService } from '../../services/auth.service';
+import {MatDivider} from "@angular/material/divider";
 
 @Component({
   selector: 'app-auth-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatDivider],
   template: `
     <div class="auth-dialog">
-      <h2>Authentication Required</h2>
-      <p>Please sign in to create a tournament</p>
+      <h2>Logowanie</h2>
+      <mat-divider></mat-divider>
 
       <div class="auth-methods">
-        <button class="btn github" (click)="signInWithGithub()">
-          Sign in with GitHub
-        </button>
-
-        <div class="divider">or</div>
-
         <form (submit)="$event.preventDefault(); submitForm()" *ngIf="!isSignUp">
           <div class="form-group">
             <label>Email</label>
@@ -31,22 +26,6 @@ import { AuthService } from '../../services/auth.service';
           </div>
           <div class="buttons">
             <button type="submit" class="btn primary">Sign In</button>
-            <button type="button" class="btn" (click)="isSignUp = true">Create Account</button>
-          </div>
-        </form>
-
-        <form (submit)="$event.preventDefault(); submitForm()" *ngIf="isSignUp">
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" [(ngModel)]="email" name="email" required>
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" [(ngModel)]="password" name="password" required>
-          </div>
-          <div class="buttons">
-            <button type="submit" class="btn primary">Sign Up</button>
-            <button type="button" class="btn" (click)="isSignUp = false">Back to Sign In</button>
           </div>
         </form>
       </div>
@@ -57,7 +36,7 @@ import { AuthService } from '../../services/auth.service';
   styles: [`
     .auth-dialog {
       padding: 20px;
-      max-width: 400px;
+      max-width: 600px;
       background: white;
       border-radius: 8px;
     }
@@ -69,32 +48,8 @@ import { AuthService } from '../../services/auth.service';
       margin-top: 20px;
     }
 
-    .divider {
-      text-align: center;
-      color: #666;
-      position: relative;
-      margin: 20px 0;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: 45%;
-      height: 1px;
-      background: #ddd;
-    }
-
-    .divider::before {
-      left: 0;
-    }
-
-    .divider::after {
-      right: 0;
-    }
-
     .form-group {
+      width: 98%;
       margin-bottom: 15px;
     }
 
@@ -105,7 +60,6 @@ import { AuthService } from '../../services/auth.service';
     }
 
     .form-group input {
-      width: 100%;
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 4px;
@@ -128,15 +82,9 @@ import { AuthService } from '../../services/auth.service';
     .btn.primary {
       background: #007bff;
       color: white;
-    }
-
-    .btn.github {
-      background: #24292e;
-      color: white;
       width: 100%;
-      padding: 10px;
     }
-
+    
     .error {
       color: #dc3545;
       margin-top: 15px;
@@ -165,15 +113,6 @@ export class AuthDialogComponent implements OnInit {
       } else {
         await this.authService.signIn(this.email, this.password);
       }
-      this.dialogRef.close();
-    } catch (error: any) {
-      this.error = error.message || 'An error occurred';
-    }
-  }
-
-  async signInWithGithub() {
-    try {
-      await this.authService.signInWithGithub();
       this.dialogRef.close();
     } catch (error: any) {
       this.error = error.message || 'An error occurred';

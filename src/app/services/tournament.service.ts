@@ -83,7 +83,7 @@ export class TournamentService {
     }
   }
 
-  private loadSavedTournament() {
+  public loadSavedTournament() {
     const savedTournament = localStorage.getItem(this.CURRENT_TOURNAMENT_KEY);
     if (savedTournament) {
       const tournament = JSON.parse(savedTournament);
@@ -103,157 +103,144 @@ export class TournamentService {
     }
   }
 
-  private progressToNextRound(
-    matches: Match[],
-    winner: Player,
-    loser: Player,
-    currentRound: string,
-    currentMatchIndex: number
-  ): void {
-    if (currentRound === "Round-16") {
-      // Find or create the quarter-final match
+  private progressToNextRound(matches: Match[], winner: Player, loser: Player, currentRound: string, currentMatchIndex: number): void {
+    if (currentRound === 'Round-16') {
+      // Calculate which quarter-final match this winner should go to
       const quarterFinalIndex = Math.floor(currentMatchIndex / 2);
-      const existingQuarterFinal = matches.find(
-        (m) =>
-          m.round === "Quarter-Finals" &&
-          matches.filter((qm) => qm.round === "Quarter-Finals" && qm.id < m.id)
-            .length === quarterFinalIndex
+      const quarterFinalMatch = matches.find(m =>
+          m.round === 'Quarter-Finals' &&
+          matches.filter(qm => qm.round === 'Quarter-Finals' && qm.id < m.id).length === quarterFinalIndex
       );
 
-      if (!existingQuarterFinal) {
+      if (!quarterFinalMatch) {
+        // Create new quarter-final match if it doesn't exist
         matches.push({
           id: Date.now(),
           player1: winner,
-          player2: { id: -1, name: "TBD", totalPoints: 0 },
+          player2: { id: -1, name: 'TBD', totalPoints: 0 },
           completed: false,
-          round: "Quarter-Finals",
+          round: 'Quarter-Finals',
           showStats: false,
           player1Stats: {
             count180s: 0,
             count171s: 0,
             highestFinish: 0,
-            bestLeg: 0,
+            bestLeg: 0
           },
           player2Stats: {
             count180s: 0,
             count171s: 0,
             highestFinish: 0,
-            bestLeg: 0,
-          },
+            bestLeg: 0
+          }
         });
-      } else if (!existingQuarterFinal.completed) {
-        if (existingQuarterFinal.player2.id === -1) {
-          existingQuarterFinal.player2 = winner;
-        } else if (existingQuarterFinal.player1.id === -1) {
-          existingQuarterFinal.player1 = winner;
+      } else if (!quarterFinalMatch.completed) {
+        // Fill in the appropriate slot in existing quarter-final match
+        if (quarterFinalMatch.player1.id === -1) {
+          quarterFinalMatch.player1 = winner;
+        } else {
+          quarterFinalMatch.player2 = winner;
         }
       }
-    } else if (currentRound === "Quarter-Finals") {
-      // Find or create the semi-final match
-      const semiFinalIndex = Math.floor(currentMatchIndex / 2);
-      const existingSemiFinal = matches.find(
-        (m) =>
-          m.round === "Semi-Finals" &&
-          matches.filter((sm) => sm.round === "Semi-Finals" && sm.id < m.id)
-            .length === semiFinalIndex
+    } else if (currentRound === 'Quarter-Finals') {
+      const semiFinalIndex = Math.floor((matches.length > 8 ? currentMatchIndex - 6 : currentMatchIndex) / (matches.length > 8 ? 4 : 2));
+      const semiFinalMatch = matches.find(m =>
+          m.round === 'Semi-Finals' &&
+          matches.filter(sm => sm.round === 'Semi-Finals' && sm.id < m.id).length === semiFinalIndex
       );
 
-      if (!existingSemiFinal) {
+      if (!semiFinalMatch) {
         matches.push({
           id: Date.now(),
           player1: winner,
-          player2: { id: -1, name: "TBD", totalPoints: 0 },
+          player2: { id: -1, name: 'TBD', totalPoints: 0 },
           completed: false,
-          round: "Semi-Finals",
+          round: 'Semi-Finals',
           showStats: false,
           player1Stats: {
             count180s: 0,
             count171s: 0,
             highestFinish: 0,
-            bestLeg: 0,
+            bestLeg: 0
           },
           player2Stats: {
             count180s: 0,
             count171s: 0,
             highestFinish: 0,
-            bestLeg: 0,
-          },
+            bestLeg: 0
+          }
         });
-      } else if (!existingSemiFinal.completed) {
-        if (existingSemiFinal.player2.id === -1) {
-          existingSemiFinal.player2 = winner;
-        } else if (existingSemiFinal.player1.id === -1) {
-          existingSemiFinal.player1 = winner;
+      } else if (!semiFinalMatch.completed) {
+        if (semiFinalMatch.player1.id === -1) {
+          semiFinalMatch.player1 = winner;
+        } else {
+          semiFinalMatch.player2 = winner;
         }
       }
-    } else if (currentRound === "Semi-Finals") {
-      // Handle progression to final
-      const existingFinal = matches.find((m) => m.round === "Final");
-      const existingThirdPlace = matches.find((m) => m.round === "Third-Place");
+    } else if (currentRound === 'Semi-Finals') {
+      const finalMatch = matches.find(m => m.round === 'Final');
+      const thirdPlaceMatch = matches.find(m => m.round === 'Third-Place');
 
-      if (!existingFinal) {
+      if (!finalMatch) {
         matches.push({
           id: Date.now(),
           player1: winner,
-          player2: { id: -1, name: "TBD", totalPoints: 0 },
+          player2: { id: -1, name: 'TBD', totalPoints: 0 },
           completed: false,
-          round: "Final",
+          round: 'Final',
           showStats: false,
           player1Stats: {
             count180s: 0,
             count171s: 0,
             highestFinish: 0,
-            bestLeg: 0,
+            bestLeg: 0
           },
           player2Stats: {
             count180s: 0,
             count171s: 0,
             highestFinish: 0,
-            bestLeg: 0,
-          },
+            bestLeg: 0
+          }
         });
-      } else if (!existingFinal.completed) {
-        if (existingFinal.player2.id === -1) {
-          existingFinal.player2 = winner;
-        } else if (existingFinal.player1.id === -1) {
-          existingFinal.player1 = winner;
+      } else if (!finalMatch.completed) {
+        if (finalMatch.player1.id === -1) {
+          finalMatch.player1 = winner;
+        } else {
+          finalMatch.player2 = winner;
         }
       }
 
-      // Handle third place match
-      const otherSemiFinal = matches.find(
-        (m) =>
-          m.round === "Semi-Finals" &&
+      const otherSemiFinal = matches.find(m =>
+          m.round === 'Semi-Finals' &&
           m.completed &&
           m !== matches[currentMatchIndex]
       );
 
       if (otherSemiFinal?.completed) {
-        const otherLoser =
-          otherSemiFinal.player1Score! > otherSemiFinal.player2Score!
+        const otherLoser = otherSemiFinal.player1Score! > otherSemiFinal.player2Score!
             ? otherSemiFinal.player2
             : otherSemiFinal.player1;
 
-        if (!existingThirdPlace) {
+        if (!thirdPlaceMatch) {
           matches.push({
             id: Date.now(),
             player1: loser,
             player2: otherLoser,
             completed: false,
-            round: "Third-Place",
+            round: 'Third-Place',
             showStats: false,
             player1Stats: {
               count180s: 0,
               count171s: 0,
               highestFinish: 0,
-              bestLeg: 0,
+              bestLeg: 0
             },
             player2Stats: {
               count180s: 0,
               count171s: 0,
               highestFinish: 0,
-              bestLeg: 0,
-            },
+              bestLeg: 0
+            }
           });
         }
       }
@@ -291,7 +278,7 @@ export class TournamentService {
     let numGroups: number;
 
     if (numParticipants <= 8) numGroups = 2;
-    else if (numParticipants <= 16) numGroups = 4;
+    else if (numParticipants <= 24) numGroups = 4;
     else numGroups = 8;
 
     const shuffledPlayers = [...participants].sort(() => Math.random() - 0.5);

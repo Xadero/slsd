@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import {Component, input, OnInit} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { TournamentService } from "../../services/tournament.service";
@@ -25,7 +25,10 @@ import { GroupStageComponent } from "./tournament-group-stage/tournament-group-s
   styleUrl: "./tournament-view.component.scss",
 })
 export class TournamentViewComponent implements OnInit {
+  isAdminUser = input<boolean>(false);
+  currentTournament = input<Tournament | null>(null);
   tournament: Tournament | null = null;
+
   playerRankings: PlayerRanking[] = [];
   tournamentSeries: TournamentSeries[] = [];
   newTournamentName: string = "";
@@ -44,6 +47,7 @@ export class TournamentViewComponent implements OnInit {
     this.tournamentService.getCurrentTournament().subscribe((tournament) => {
       this.tournament = tournament;
     });
+
     this.tournamentService.getPlayerRankings().subscribe((rankings) => {
       this.playerRankings = rankings;
       this.availablePlayers = rankings.map((r) => ({
@@ -106,6 +110,10 @@ export class TournamentViewComponent implements OnInit {
         this.participants,
         this.selectedSeriesId || undefined
       );
+
+      this.tournamentService.getCurrentTournament().subscribe((tournament) => {
+        this.tournament = tournament;
+      });
     }
   }
 

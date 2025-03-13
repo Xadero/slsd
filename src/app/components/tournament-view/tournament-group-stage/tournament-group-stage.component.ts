@@ -33,12 +33,6 @@ export class GroupStageComponent {
     public dialog: MatDialog
   ) {}
 
-  areAllMatchesCompleted(): boolean {
-    return this.tournament.groups.every((group) =>
-      group.matches.every((match) => match.completed)
-    );
-  }
-
   getMatchResult(group: Group, player1: Player, player2: Player) {
     const match = group.matches.find(
       (m) =>
@@ -73,7 +67,7 @@ export class GroupStageComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         console.log("Selected players:", result);
-        this.onGroupStageComplete.emit(this.qualifyingPlayers);
+        this.onGroupStageComplete.emit(result);
       }
     });
   }
@@ -193,5 +187,11 @@ export class GroupStageComponent {
       default:
         return "th";
     }
+  }
+
+  areAllMatchesCompleted(): boolean {
+    return this.tournament.groups.every((group) =>
+        group.matches.every((match) => match.completed)
+    );
   }
 }

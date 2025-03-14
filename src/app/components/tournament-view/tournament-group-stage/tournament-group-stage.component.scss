@@ -1,6 +1,6 @@
 .tournament-view {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 70% 30%;
     gap: 20px;
     margin-top: 20px;
 }
@@ -10,12 +10,12 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 400px;
+    width: 100%;
 }
 
 .groups-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    //grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
     gap: 20px;
 }
 
@@ -24,6 +24,8 @@
     padding: 15px;
     border-radius: 8px;
     background: white;
+    min-height: 330px;
+    min-width: 900px
 }
 
 .matrix-table-container {
@@ -38,6 +40,11 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9em;
+    min-height: 200px;
+}
+
+.gold-bg {
+    background-color: rgba(255, 210, 0, 0.4) !important;
 }
 
 .matrix-table th,
@@ -76,12 +83,11 @@
 }
 
 .match-cell {
-    background: #fff;
     min-width: 100px;
 }
 
 .diagonal {
-    background: #f8f9fa;
+    background-color: #f8f9fa;
 }
 
 .match-result {
@@ -112,9 +118,8 @@
 }
 
 .points,
-.balance {
+.place {
     font-weight: 600;
-    background: #f8f9fa;
 }
 
 .matches {

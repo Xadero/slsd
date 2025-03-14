@@ -21,10 +21,9 @@ import { TournamentService } from "../../../services/tournament.service";
 })
 export class GroupStageComponent {
   @Input() tournament!: Tournament;
-  @Input() showMatchesList: boolean = true;
   @Output() onMatchUpdate = new EventEmitter<Match>();
   @Output() onGroupStageComplete = new EventEmitter<number>();
-
+  public showMatchesList: boolean = true;
   editingMatch: Match | null = null;
   qualifyingPlayers: number = 8;
 
@@ -42,17 +41,45 @@ export class GroupStageComponent {
 
     if (!match) return null;
 
+    // Check if the match is reversed (i.e., if player1 is actually player2 in the match)
     const isReversed = match.player1.id === player2.id;
     const score = match.completed
-      ? `${isReversed ? match.player2Score : match.player1Score} : ${
-          isReversed ? match.player1Score : match.player2Score
-        }`
+      ? isReversed
+        ? `${match.player2Score} : ${match.player1Score}`
+        : `${match.player1Score} : ${match.player2Score}`
       : "";
 
     return {
-      match,
+      match: match, // Return the original match without modification
       score,
     };
+  }
+
+  validateScoreInput(event: KeyboardEvent): boolean {
+    // Allow only numbers 0-3
+    const input = event.key;
+    const isNumber = /[0-3]/.test(input);
+    if (!isNumber) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  formatScoreInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+
+    // Remove any non-numeric characters
+    let cleanValue = value.replace(/[^0-3]/g, "");
+
+    // Take only the first digit
+    if (cleanValue.length > 0) {
+      cleanValue = cleanValue[0];
+    }
+
+    // Update the input value
+    input.value = cleanValue;
   }
 
   isModalOpen = false;
@@ -92,7 +119,10 @@ export class GroupStageComponent {
       }, 0);
   }
 
-  getPlayerBalance(group: Group, player: Player): string {
+  private getPlayerBalance(
+    group: Group,
+    player: Player
+  ): { scored: number; conceded: number } {
     let scored = 0;
     let conceded = 0;
 
@@ -112,14 +142,31 @@ export class GroupStageComponent {
         }
       });
 
-    return `${scored} : ${conceded}`;
+    return { scored, conceded };
+  }
+
+  public displayLegBalance(
+    group: Group,
+    player: Player,
+    calculate = true
+  ): string {
+    const balance = this.getPlayerBalance(group, player);
+    return calculate
+      ? (balance.scored - balance.conceded).toString()
+      : `${balance.scored}:${balance.conceded}`;
   }
 
   isValidScore(match: Match): boolean {
     return (
       match.player1Score !== undefined &&
+      match.player1Score !== null &&
       match.player2Score !== undefined &&
-      match.player1Score !== match.player2Score
+      match.player2Score !== null &&
+      match.player1Score !== match.player2Score &&
+      match.player1Score >= 0 &&
+      match.player1Score <= 3 &&
+      match.player2Score >= 0 &&
+      match.player2Score <= 3
     );
   }
 
@@ -191,7 +238,54 @@ export class GroupStageComponent {
 
   areAllMatchesCompleted(): boolean {
     return this.tournament.groups.every((group) =>
-        group.matches.every((match) => match.completed)
+      group.matches.every((match) => match.completed)
     );
+  }
+
+  getPlayerPlace(group: Group, player: Player): number {
+    const standings = group.players.map((p) => {
+      const points = this.getPlayerPoints(group, p);
+      const balance = this.displayLegBalance(group, p, true);
+      const headToHead = this.getHeadToHeadResult(group, p, points);
+      return { player: p, points, balance, headToHead };
+    });
+
+    // Sort by points (descending), then balance, then head-to-head
+    standings.sort((a, b) => {
+      if (a.points !== b.points) {
+        return b.points - a.points;
+      }
+      if (a.balance !== b.balance) {
+        return parseInt(b.balance.toString()) - parseInt(a.balance.toString());
+      }
+      if (a.headToHead !== b.headToHead) {
+        return b.headToHead - a.headToHead;
+      }
+      return 0;
+    });
+
+    return standings.findIndex((s) => s.player.id === player.id) + 1;
+  }
+
+  private getHeadToHeadResult(
+    group: Group,
+    player: Player,
+    playerPoints: number
+  ): number {
+    const match = group.matches.find(
+      (m) =>
+        (m.player1.id === player.id || m.player2.id === player.id) &&
+        m.completed &&
+        (this.getPlayerPoints(group, m.player1) === playerPoints ||
+          this.getPlayerPoints(group, m.player2) === playerPoints)
+    );
+
+    if (!match) return 0;
+
+    if (match.player1.id === player.id) {
+      return match.player1Score! > match.player2Score! ? 1 : -1;
+    } else {
+      return match.player2Score! > match.player1Score! ? 1 : -1;
+    }
   }
 }

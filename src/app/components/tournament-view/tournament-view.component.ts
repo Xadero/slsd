@@ -38,8 +38,6 @@ export class TournamentViewComponent implements OnInit {
   showNewSeriesInput: boolean = false;
   participants: Player[] = [];
   availablePlayers: Player[] = [];
-  showMatchesList = true;
-  Math = Math;
 
   constructor(private tournamentService: TournamentService) {}
 

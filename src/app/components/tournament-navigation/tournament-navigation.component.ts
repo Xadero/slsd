@@ -84,8 +84,6 @@ export class TournamentNavigationComponent implements OnInit, OnDestroy {
 
   openSeriesDetails(series: TournamentSeries) {
     this.selectSeriesDetails.emit(series);
-    // this.tournamentService.setCurrentSeries(series);
-    // this.tournamentService.setCurrentTournament(null);
     this.isDropdownOpen = false;
     this.expandedSeries = null;
   }

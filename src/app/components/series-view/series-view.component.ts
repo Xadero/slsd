@@ -1,4 +1,4 @@
-import {Component, input, OnInit} from "@angular/core";
+import {Component, effect, input} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TournamentService } from "../../services/tournament.service";
 import {
@@ -16,7 +16,7 @@ import { TournamentHistoryComponent } from "../tournament-history/tournament-his
   templateUrl: "./series-view.component.html",
   styleUrls: ["./series-view.component.scss"],
 })
-export class SeriesViewComponent implements OnInit {
+export class SeriesViewComponent {
   series = input.required<TournamentSeries>();
   seriesTournaments: Tournament[] = [];
   seriesRankings: PlayerRanking[] = [];
@@ -27,11 +27,11 @@ export class SeriesViewComponent implements OnInit {
     private dialog: Dialog
   ) {}
 
-  ngOnInit() {
+  loadSeries = effect(() => {
     if(!!this.series()) {
       this.loadSeriesData(this.series().id)
     }
-  }
+  })
 
   private loadSeriesData(seriesId: string) {
     this.tournamentService.getTournamentHistory().subscribe((tournaments) => {

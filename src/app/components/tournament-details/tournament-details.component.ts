@@ -343,7 +343,6 @@ import {
 })
 export class TournamentDetailsComponent implements OnInit {
   tournament = input.required<Tournament>();
-
   constructor(private tournamentService: TournamentService) {}
 
   ngOnInit() {

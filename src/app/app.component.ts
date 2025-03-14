@@ -119,18 +119,19 @@ export class AppComponent implements OnDestroy {
   }
 
   showLastSeries() {
-    // if (this.currentlyPlayedTournament) {
-    //   return;
-    // }
     this.tournamentService.getTournamentSeries().subscribe((series) => {
       if (series.length > 0) {
-        // Sort series by date and get the most recent one
-        const lastSeries = series.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )[0];
-        this.selectedSeriesDetails(lastSeries)
+        this.tournamentService.getTournamentHistory().subscribe((tournaments) => {
 
+          const latestTournament = tournaments.reduce((latest, current) =>
+              current.date > latest.date ? current : latest
+          );
+
+          const lastSeries = series.find(ser => ser.id === latestTournament.series_id);
+          if (lastSeries) {
+            this.selectedSeriesDetails(lastSeries);
+          }
+        })
       }
     });
   }

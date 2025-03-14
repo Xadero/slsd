@@ -178,6 +178,8 @@ export class GroupStageComponent {
 
   submitResult(match: Match) {
     if (match.player1Score !== undefined && match.player2Score !== undefined) {
+      match.player1Score = parseInt(match.player1Score.toString());
+      match.player2Score = parseInt(match.player2Score.toString());
       match.player1Stats = match.player1Stats || {
         count180s: 0,
         count171s: 0,

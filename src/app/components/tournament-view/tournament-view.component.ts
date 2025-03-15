@@ -1,4 +1,4 @@
-import {Component, input, OnInit} from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { TournamentService } from "../../services/tournament.service";
@@ -164,5 +164,12 @@ export class TournamentViewComponent implements OnInit {
 
   onSubmitKnockoutResult(match: Match) {
     this.handleMatchUpdate(match);
+  }
+
+  public getSeriesNameByTournamentName() {
+    const series = this.tournamentSeries.find(
+      (x) => x.id === this.tournament?.series_id
+    );
+    return series ? series.name : "";
   }
 }

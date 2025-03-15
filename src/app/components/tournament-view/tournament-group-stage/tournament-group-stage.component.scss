@@ -2,7 +2,7 @@
     display: grid;
     grid-template-columns: 70% 30%;
     gap: 20px;
-    margin-top: 20px;
+    padding: 20px;
 }
 
 .sequential-matches {
@@ -10,13 +10,13 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    width: auto;
 }
 
 .groups-container {
     display: grid;
-    //grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
     gap: 20px;
+    height: fit-content
 }
 
 .group {
@@ -25,7 +25,8 @@
     border-radius: 8px;
     background: white;
     min-height: 330px;
-    min-width: 900px
+    width: auto;
+    overflow-x: auto;
 }
 
 .matrix-table-container {
@@ -43,8 +44,11 @@
     min-height: 200px;
 }
 
-.gold-bg {
-    background-color: rgba(255, 210, 0, 0.4) !important;
+tr.gold-bg {
+    background-color: rgba(255, 210, 0, 0.4);
+    .diagonal {
+        background-color: rgba(255, 210, 0, 0.4) !important;
+    }
 }
 
 .matrix-table th,
@@ -77,8 +81,8 @@
 }
 
 .match-score {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
     gap: 5px;
 }
 
@@ -96,6 +100,7 @@
     padding: 4px 8px;
     border-radius: 4px;
     transition: background-color 0.2s;
+    text-align: center;
 }
 
 .match-result:hover {

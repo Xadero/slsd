@@ -4,22 +4,14 @@
             <h1 (click)="showLastSeries()" style="cursor: pointer">Świebodzińska liga steel darta</h1>
         </div>
         <nav class="navigation">
-            <app-tournament-navigation
-                    (selectTournamentDetails)="selectedTournamentDetails($event)"
-                    (selectSeriesDetails)="selectedSeriesDetails($event)"
-            ></app-tournament-navigation>
+            <app-tournament-navigation (selectTournamentDetails)="selectedTournamentDetails($event)" (selectSeriesDetails)="selectedSeriesDetails($event)"></app-tournament-navigation>
 
-            <a href="#" class="nav-link">Championships</a>
-            <a href="#" class="nav-link">Dart Academy</a>
-            <a href="#" class="nav-link">Snipers</a>
-            <a href="#" class="nav-link highlight">Become a Partner</a>
-            @if (showSecretButton) {
-                @if(!(getCurrentUser() | async)) {
-                    <div class="nav-link highlight" (click)="openLoginDialog()">Logowanie</div>
-                } @else {
-                    <div class="nav-link success" (click)="showNewTournament()">{{currentlyPlayedTournament ? 'Powrót do turnieju' : 'Stwórz turniej'}}</div>
-                }
-            }
+            <a href="#" class="nav-link">Liga</a>
+            <a href="#" class="nav-link">Kontakt</a> @if (showSecretButton) { @if(!(getCurrentUser() | async)) {
+            <div class="nav-link highlight" (click)="openLoginDialog()">Logowanie</div>
+            } @else {
+            <div class="nav-link success" (click)="showNewTournament()">{{currentlyPlayedTournament ? 'Powrót do turnieju' : 'Stwórz turniej'}}</div>
+            } }
         </nav>
     </div>
 </header>
@@ -27,15 +19,11 @@
     <div class="app-container">
 
         @if(selectedTournament(); as tournament) {
-            <app-tournament-details [tournament]="tournament"></app-tournament-details>
-        }
-
-        @if (selectedSeries(); as series) {
-            <app-series-view [series]="series"></app-series-view>
-        }
-
-        @if (isAdmin && ((!selectedTournament() && !selectedSeries()) || currentlyPlayedTournament || showTournamentCreation)) {
-            <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
+        <app-tournament-details [tournament]="tournament"></app-tournament-details>
+        } @if (selectedSeries(); as series) {
+        <app-series-view [series]="series"></app-series-view>
+        } @if (isAdmin && ((!selectedTournament() && !selectedSeries()) || currentlyPlayedTournament || showTournamentCreation)) {
+        <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
         }
     </div>
 </main>

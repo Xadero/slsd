@@ -1,112 +1,114 @@
+ @if (!tournament || !isAdminUser()) {
+<div class="create-tournament">
+    <h2>Create New Tournament</h2>
+    <div class="form-group">
+        <label>Tournament Name:</label>
+        <input type="text" [(ngModel)]="newTournamentName" class="form-input" />
+    </div>
 
-@if (!tournament || !isAdminUser()) {
-    <div class="create-tournament">
-        <h2>Create New Tournament</h2>
-        <div class="form-group">
-            <label>Tournament Name:</label>
-            <input type="text" [(ngModel)]="newTournamentName" class="form-input" />
-        </div>
-
-        <!-- Tournament Series Selection -->
-        <div class="form-group">
-            <label>Tournament Series:</label>
-            <div class="series-selection">
-                <select [(ngModel)]="selectedSeriesId" class="form-input">
+    <!-- Tournament Series Selection -->
+    <div class="form-group">
+        <label>Tournament Series:</label>
+        <div class="series-selection">
+            <select [(ngModel)]="selectedSeriesId" class="form-input">
                     <option value="">-- Select Series --</option>
                     <option *ngFor="let series of tournamentSeries" [value]="series.id">
                         {{ series.name }}
                     </option>
                 </select>
-                <button (click)="showNewSeriesInput = true" *ngIf="!showNewSeriesInput" class="btn">
+            <button (click)="showNewSeriesInput = true" *ngIf="!showNewSeriesInput" class="btn">
                     Create New Series
                 </button>
-            </div>
-            <div *ngIf="showNewSeriesInput" class="new-series-input">
-                <input type="text" [(ngModel)]="newSeriesName" placeholder="Enter series name" class="form-input" />
-                <button (click)="createNewSeries()" [disabled]="!newSeriesName.trim()" class="btn">
+        </div>
+        <div *ngIf="showNewSeriesInput" class="new-series-input">
+            <input type="text" [(ngModel)]="newSeriesName" placeholder="Enter series name" class="form-input" />
+            <button (click)="createNewSeries()" [disabled]="!newSeriesName.trim()" class="btn">
                     Add Series
                 </button>
-                <button (click)="showNewSeriesInput = false" class="btn danger">
+            <button (click)="showNewSeriesInput = false" class="btn danger">
                     Cancel
                 </button>
+        </div>
+    </div>
+
+    <!-- Player Selection -->
+    <div class="player-selection">
+        <h3>Add Players</h3>
+
+        <!-- Existing Players -->
+        <div class="existing-players">
+            <h4>Select Existing Players</h4>
+            <div class="players-grid">
+                <div *ngFor="let player of availablePlayers" class="player-card" [class.selected]="isPlayerSelected(player)" (click)="togglePlayer(player)">
+                    <span class="player-name">{{ player.name }}</span>
+                    <span class="player-points">Points: {{ player.totalPoints }}</span>
+                </div>
             </div>
         </div>
 
-        <!-- Player Selection -->
-        <div class="player-selection">
-            <h3>Add Players</h3>
-
-            <!-- Existing Players -->
-            <div class="existing-players">
-                <h4>Select Existing Players</h4>
-                <div class="players-grid">
-                    <div *ngFor="let player of availablePlayers" class="player-card" [class.selected]="isPlayerSelected(player)" (click)="togglePlayer(player)">
-                        <span class="player-name">{{ player.name }}</span>
-                        <span class="player-points">Points: {{ player.totalPoints }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add New Player -->
-            <div class="add-new-player">
-                <h4>Add New Player</h4>
-                <div class="form-group">
-                    <input type="text" [(ngModel)]="newPlayerName" placeholder="Enter player name" class="form-input" />
-                    <button (click)="addNewPlayer()" class="btn" [disabled]="!newPlayerName.trim()">
+        <!-- Add New Player -->
+        <div class="add-new-player">
+            <h4>Add New Player</h4>
+            <div class="form-group">
+                <input type="text" [(ngModel)]="newPlayerName" placeholder="Enter player name" class="form-input" />
+                <button (click)="addNewPlayer()" class="btn" [disabled]="!newPlayerName.trim()">
                         Add Player
                     </button>
-                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Selected Players List -->
-        <div class="selected-players">
-            <h3>Selected Players ({{ participants.length }})</h3>
-            <div class="players-list">
-                <div *ngFor="let player of participants" class="selected-player">
-                    <span>{{ player.name }}</span>
-                    <button (click)="removePlayer(player)" class="btn-small danger">
+    <!-- Selected Players List -->
+    <div class="selected-players">
+        <h3>Selected Players ({{ participants.length }})</h3>
+        <div class="players-list">
+            <div *ngFor="let player of participants" class="selected-player">
+                <span>{{ player.name }}</span>
+                <button (click)="removePlayer(player)" class="btn-small danger">
                         Remove
                     </button>
-                </div>
             </div>
         </div>
+    </div>
 
-        <button (click)="createTournament()" [disabled]="participants.length < 4 || !newTournamentName.trim()" class="btn primary create-btn">
+    <button (click)="createTournament()" [disabled]="participants.length < 4 || !newTournamentName.trim()" class="btn primary create-btn">
             Start Tournament ({{ participants.length }} players)
         </button>
-    </div>
+</div>
 }
 
 <!-- Active Tournament View -->
 @if (tournament) {
-    <div *ngIf="tournament">
-        <h1>{{ tournament.name }}</h1>
-        <div class="tournament-actions">
-            <button (click)="abandonTournament()" class="btn danger">
+<div>
+
+    <h1>{{ getSeriesNameByTournamentName() }}</h1>
+    <h4>{{ tournament.name }}</h4>
+
+    <div class="tournament-actions ">
+        <button (click)="abandonTournament() " class="btn danger ">
                 Abandon Tournament
             </button>
-            <button *ngIf="tournament.knockoutStageStarted" (click)="returnToGroupStage()" class="btn">
+        <button *ngIf="tournament.knockoutStageStarted " (click)="returnToGroupStage() " class="btn ">
                 Return to Group Stage
             </button>
-        </div>
+    </div>
 
-        <!-- Group Stage -->
-        <app-group-stage *ngIf="!tournament.knockoutStageStarted" [tournament]="tournament" (onMatchUpdate)="handleMatchUpdate($event)" (onGroupStageComplete)="handleGroupStageComplete($event)">
-        </app-group-stage>
+    <!-- Group Stage -->
+    <app-group-stage *ngIf="!tournament.knockoutStageStarted " [tournament]="tournament " (onMatchUpdate)="handleMatchUpdate($event) " (onGroupStageComplete)="handleGroupStageComplete($event) ">
+    </app-group-stage>
 
-        <!-- Knockout Stage -->
-        <div *ngIf="tournament.knockoutStageStarted" class="knockout-stage">
-            <h2>Knockout Stage</h2>
-            <app-tournament-knockout-stage [matches]="tournament.knockoutMatches" [onSubmitResult]="onSubmitKnockoutResult.bind(this)">
-            </app-tournament-knockout-stage>
-        </div>
+    <!-- Knockout Stage -->
+    <div *ngIf="tournament.knockoutStageStarted " class="knockout-stage ">
+        <h2>Knockout Stage</h2>
+        <app-tournament-knockout-stage [matches]="tournament.knockoutMatches " [onSubmitResult]="onSubmitKnockoutResult.bind(this) ">
+        </app-tournament-knockout-stage>
+    </div>
 
-        <!-- Tournament Controls -->
-        <div class="tournament-controls">
-            <button *ngIf="canCompleteTournament()" (click)="completeTournament()" class="btn primary">
+    <!-- Tournament Controls -->
+    <div class="tournament-controls ">
+        <button *ngIf="canCompleteTournament() " (click)="completeTournament() " class="btn primary ">
                 Complete Tournament
             </button>
-        </div>
     </div>
+</div>
 }

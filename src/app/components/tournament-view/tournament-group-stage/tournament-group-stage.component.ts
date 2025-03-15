@@ -41,22 +41,28 @@ export class GroupStageComponent {
 
     if (!match) return null;
 
-    // Check if the match is reversed (i.e., if player1 is actually player2 in the match)
     const isReversed = match.player1.id === player2.id;
     const score = match.completed
-      ? isReversed
-        ? `${match.player2Score} : ${match.player1Score}`
-        : `${match.player1Score} : ${match.player2Score}`
+      ? `${isReversed ? match.player2Score : match.player1Score} : ${
+          isReversed ? match.player1Score : match.player2Score
+        }`
       : "";
 
     return {
-      match: match, // Return the original match without modification
+      match: isReversed
+        ? {
+            ...match,
+            player1Score: match.player2Score,
+            player2Score: match.player1Score,
+            player1: match.player2,
+            player2: match.player1,
+          }
+        : match,
       score,
     };
   }
 
   validateScoreInput(event: KeyboardEvent): boolean {
-    // Allow only numbers 0-3
     const input = event.key;
     const isNumber = /[0-3]/.test(input);
     if (!isNumber) {
@@ -69,20 +75,12 @@ export class GroupStageComponent {
   formatScoreInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = input.value;
-
-    // Remove any non-numeric characters
     let cleanValue = value.replace(/[^0-3]/g, "");
-
-    // Take only the first digit
     if (cleanValue.length > 0) {
       cleanValue = cleanValue[0];
     }
-
-    // Update the input value
     input.value = cleanValue;
   }
-
-  isModalOpen = false;
 
   openModal() {
     const dialogRef = this.dialog.open(GroupStageDialogComponent, {
@@ -93,7 +91,6 @@ export class GroupStageComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log("Selected players:", result);
         this.onGroupStageComplete.emit(result);
       }
     });
@@ -221,21 +218,7 @@ export class GroupStageComponent {
 
     const standings = this.tournamentService.getGroupStandings(group);
     const position = standings.findIndex((s) => s.player.id === player.id) + 1;
-    return position ? `${position}${this.getOrdinalSuffix(position)}` : "";
-  }
-
-  private getOrdinalSuffix(n: number): string {
-    if (n > 3 && n < 21) return "th";
-    switch (n % 10) {
-      case 1:
-        return "st";
-      case 2:
-        return "nd";
-      case 3:
-        return "rd";
-      default:
-        return "th";
-    }
+    return position.toString();
   }
 
   areAllMatchesCompleted(): boolean {
@@ -252,7 +235,6 @@ export class GroupStageComponent {
       return { player: p, points, balance, headToHead };
     });
 
-    // Sort by points (descending), then balance, then head-to-head
     standings.sort((a, b) => {
       if (a.points !== b.points) {
         return b.points - a.points;

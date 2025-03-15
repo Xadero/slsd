@@ -26,15 +26,21 @@
                         }
                     },
                     "options": {
-                        "assets": [],
+                        "assets": [{
+                                "glob": "favicon.ico",
+                                "input": "src/assets",
+                                "output": "/"
+                            },
+                            "src/assets"
+                        ],
                         "index": "src/index.html",
                         "browser": "src/main.ts",
                         "outputPath": "dist/demo",
                         "polyfills": ["zone.js"],
                         "scripts": [],
                         "styles": [
-                          "@angular/material/prebuilt-themes/azure-blue.css",
-                          "src/global_styles.css"
+                            "@angular/material/prebuilt-themes/azure-blue.css",
+                            "src/global_styles.css"
                         ],
                         "tsConfig": "tsconfig.app.json"
                     }

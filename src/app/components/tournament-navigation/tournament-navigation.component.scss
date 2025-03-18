@@ -22,9 +22,9 @@
     position: absolute;
     top: 100%;
     left: 0;
-    background: white;
+    color: white;
+    background-color: #1a1a2e;
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     min-width: 200px;
     margin-top: 0.5rem;
     z-index: 1000;
@@ -44,12 +44,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #333;
     transition: background-color 0.2s;
 }
 
 .series-header:hover {
-    background-color: #f5f5f5;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .arrow {
@@ -60,9 +59,8 @@
     position: absolute;
     left: 100%;
     top: 0;
-    background: white;
+    background: #1a1a2e;
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     min-width: 250px;
 }
 
@@ -72,12 +70,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #333;
     transition: background-color 0.2s;
 }
 
 .tournament-item:hover {
-    background-color: #f5f5f5;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .date {

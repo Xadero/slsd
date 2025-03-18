@@ -6,53 +6,18 @@
 
     <!-- Group Stage Results -->
     <div class="section">
-        <h3>Group Stage Results</h3>
+        <h3>Faza grupowa</h3>
         <div class="groups-grid">
             <div *ngFor="let group of tournament.groups" class="group-results">
-                <h4>Group {{ group.id + 1 }}</h4>
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>Player 1</th>
-                            <th>Score</th>
-                            <th>Player 2</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let match of group.matches">
-                            <td [class.winner]="isWinner(match, match.player1)">
-                                {{ match.player1.name }}
-                                <div *ngIf="match.player1Stats" class="player-match-stats">
-                                    <span *ngIf="match.player1Stats.count180s">180s: {{match.player1Stats.count180s}}</span>
-                                    <span *ngIf="match.player1Stats.count171s">171s: {{match.player1Stats.count171s}}</span>
-                                    <span *ngIf="match.player1Stats.highestFinish">HF: {{match.player1Stats.highestFinish}}</span>
-                                    <span *ngIf="match.player1Stats.bestLeg">BL: {{match.player1Stats.bestLeg}}</span>
-                                </div>
-                            </td>
-                            <td class="score">
-                                {{ match.completed ? match.player1Score + ' - ' + match.player2Score : '-' }}
-                            </td>
-                            <td [class.winner]="isWinner(match, match.player2)">
-                                {{ match.player2.name }}
-                                <div *ngIf="match.player2Stats" class="player-match-stats">
-                                    <span *ngIf="match.player2Stats.count180s">180s: {{match.player2Stats.count180s}}</span>
-                                    <span *ngIf="match.player2Stats.count171s">171s: {{match.player2Stats.count171s}}</span>
-                                    <span *ngIf="match.player2Stats.highestFinish">HF: {{match.player2Stats.highestFinish}}</span>
-                                    <span *ngIf="match.player2Stats.bestLeg">BL: {{match.player2Stats.bestLeg}}</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
+                <h4>Grupa {{ group.id + 1 }}</h4>
                 <div class="standings">
-                    <h5>Final Standings</h5>
+                    <h5>Tabela końcowa</h5>
                     <table class="standings-table">
                         <thead>
                             <tr>
-                                <th>Pos</th>
-                                <th>Player</th>
-                                <th>Points</th>
+                                <th>Miejsce</th>
+                                <th>Zawodnik</th>
+                                <th>Punkty</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,15 +29,55 @@
                         </tbody>
                     </table>
                 </div>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Wyniki</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let match of group.matches">
+                            <td [class.winner]="isWinner(match, match.player1)">
+                                {{ match.player1.name }}
+                                <div *ngIf="match.player1Stats" class="player-match-stats">
+                                    <span *ngIf="match.player1Stats.count180s">180s:
+                                        {{match.player1Stats.count180s}}</span>
+                                    <span *ngIf="match.player1Stats.count171s">171s:
+                                        {{match.player1Stats.count171s}}</span>
+                                    <span *ngIf="match.player1Stats.highestFinish">HF:
+                                        {{match.player1Stats.highestFinish}}</span>
+                                    <span *ngIf="match.player1Stats.bestLeg">BL: {{match.player1Stats.bestLeg}}</span>
+                                </div>
+                            </td>
+                            <td class="score">
+                                {{ match.completed ? match.player1Score + ' - ' + match.player2Score : '-' }}
+                            </td>
+                            <td [class.winner]="isWinner(match, match.player2)">
+                                {{ match.player2.name }}
+                                <div *ngIf="match.player2Stats" class="player-match-stats">
+                                    <span *ngIf="match.player2Stats.count180s">180s:
+                                        {{match.player2Stats.count180s}}</span>
+                                    <span *ngIf="match.player2Stats.count171s">171s:
+                                        {{match.player2Stats.count171s}}</span>
+                                    <span *ngIf="match.player2Stats.highestFinish">HF:
+                                        {{match.player2Stats.highestFinish}}</span>
+                                    <span *ngIf="match.player2Stats.bestLeg">BL: {{match.player2Stats.bestLeg}}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- Knockout Stage Results -->
     <div *ngIf="tournament.knockoutStageStarted" class="section">
-        <h3>Knockout Stage Results</h3>
+        <h3>Faza pucharowa</h3>
         <div class="knockout-results">
-            <div *ngFor="let round of ['Quarter-Finals', 'Semi-Finals', 'Final']" class="round-results">
+            <div *ngFor="let round of ['Quarter-Finals', 'Semi-Finals']" class="round-results">
                 <h4>{{ round }}</h4>
                 <table class="results-table">
                     <tbody>
@@ -87,6 +92,47 @@
                                 {{ match.player2.name }}
                             </td>
                         </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="round-results">
+                <h4>Finał</h4>
+                <table class="results-table">
+                    <tbody>
+                        @if (getMatchesByRound('Final')[0]; as final) {
+                        <tr>
+                            <td [class.winner]="isWinner(final, final.player1)">
+                                {{ final.player1.name }}
+                            </td>
+                            <td class="score">
+                                {{ final.completed ? final.player1Score + ' - ' + final.player2Score : '-' }}
+                            </td>
+                            <td [class.winner]="isWinner(final, final.player2)">
+                                {{ final.player2.name }}
+                            </td>
+                        </tr>
+                        }
+
+                    </tbody>
+                </table>
+                <h4>Mecz o 3 miejsce</h4>
+                <table class="results-table">
+                    <tbody>
+                        @if (getMatchesByRound('Third-Place')[0]; as thirdPlace) {
+                        <tr>
+                            <td [class.winner]="isWinner(thirdPlace, thirdPlace.player1)">
+                                {{ thirdPlace.player1.name }}
+                            </td>
+                            <td class="score">
+                                {{ thirdPlace.completed ? thirdPlace.player1Score + ' - ' + thirdPlace.player2Score :
+                                '-' }}
+                            </td>
+                            <td [class.winner]="isWinner(thirdPlace, thirdPlace.player2)">
+                                {{ thirdPlace.player2.name }}
+                            </td>
+                        </tr>
+                        }
                     </tbody>
                 </table>
             </div>

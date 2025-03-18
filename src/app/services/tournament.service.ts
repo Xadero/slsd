@@ -744,19 +744,18 @@ export class TournamentService {
 
   private calculateSeriesRankings(tournaments: Tournament[]): PlayerRanking[] {
     const playerStats = new Map<number, PlayerRanking>();
-
-    tournaments.forEach((tournament, tournamentIndex) => {
-      tournament.participants.forEach((player) => {
-        const stats = this.calculatePlayerStatistics(player, tournament);
-        const points = this.calculateTournamentPoints(player, tournament);
-
+    const tournamentCount = tournaments.length;
+  
+    // First, initialize all players with empty arrays of correct length
+    tournaments.forEach(tournament => {
+      tournament.participants.forEach(player => {
         if (!playerStats.has(player.id)) {
           playerStats.set(player.id, {
             player,
             totalPoints: 0,
             rankChange: 0,
             currentRank: 0,
-            tournamentPoints: [],
+            tournamentPoints: new Array(tournamentCount).fill(0), // Initialize with zeros
             total180s: 0,
             total171s: 0,
             highestFinish: 0,
@@ -767,42 +766,44 @@ export class TournamentService {
             legsWon: 0,
             matchesWon: 0,
             wonLegsPercentage: 0,
-            wonMatchesPercentage: 0,
+            wonMatchesPercentage: 0
           });
         }
-
+      });
+    });
+  
+    // Then calculate points for each tournament
+    tournaments.forEach((tournament, tournamentIndex) => {
+      tournament.participants.forEach(player => {
+        const stats = this.calculatePlayerStatistics(player, tournament);
+        const points = this.calculateTournamentPoints(player, tournament);
         const currentStats = playerStats.get(player.id)!;
+  
+        // Update tournament points at the correct index
+        currentStats.tournamentPoints[tournamentIndex] = points;
         currentStats.totalPoints += points;
         currentStats.total180s += stats.total180s;
         currentStats.total171s += stats.total171s;
-        currentStats.highestFinish = Math.max(
-          currentStats.highestFinish,
-          stats.highestFinish
-        );
-        currentStats.bestLeg = Math.min(currentStats.bestLeg, stats.bestLeg);
+        currentStats.highestFinish = Math.max(currentStats.highestFinish, stats.highestFinish);
+        currentStats.bestLeg = Math.max(currentStats.bestLeg, stats.bestLeg);
         currentStats.legDifference += stats.legDifference;
         currentStats.matchesPlayed += stats.matchesPlayed;
         currentStats.legsPlayed += stats.legsPlayed;
         currentStats.legsWon += stats.legsWon;
         currentStats.matchesWon += stats.matchesWon;
-        currentStats.tournamentPoints[tournamentIndex] = points;
       });
     });
-
+  
     // Calculate percentages and sort by total points
     return Array.from(playerStats.values())
-      .map((stats) => ({
+      .map(stats => ({
         ...stats,
-        wonLegsPercentage:
-          stats.legsPlayed > 0 ? (stats.legsWon / stats.legsPlayed) * 100 : 0,
-        wonMatchesPercentage:
-          stats.matchesPlayed > 0
-            ? (stats.matchesWon / stats.matchesPlayed) * 100
-            : 0,
+        wonLegsPercentage: stats.legsPlayed > 0 ? (stats.legsWon / stats.legsPlayed) * 100 : 0,
+        wonMatchesPercentage: stats.matchesPlayed > 0 ? (stats.matchesWon / stats.matchesPlayed) * 100 : 0
       }))
       .sort((a, b) => b.totalPoints - a.totalPoints);
   }
-
+  
   setCurrentTournament(tournament: Tournament | null): void {
     this.currentTournament.next(tournament);
     this.saveTournamentToStorage(tournament);
@@ -921,6 +922,11 @@ export class TournamentService {
   ): number {
     let points = 0;
 
+    if (player.name === 'Osoba 21') {
+      console.log('x')
+    }
+
+    
     if (tournament.completed && tournament.knockoutStageStarted) {
       const finalMatch = tournament.knockoutMatches.find(
         (m) => m.round === "Final" && m.completed

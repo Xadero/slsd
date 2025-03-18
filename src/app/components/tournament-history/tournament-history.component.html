@@ -1,7 +1,8 @@
 <div class="history-container">
     <h2>Tournament History</h2>
     <div class="tournaments-list">
-        <div *ngFor="let tournament of tournaments()" class="tournament-card" (click)="openTournamentDetails(tournament)">
+        <div *ngFor="let tournament of tournaments()" class="tournament-card"
+            (click)="openTournamentDetails(tournament)">
             <div class="tournament-header">
                 <h3>{{ tournament.name }}</h3>
                 <span class="date">{{ tournament.date | date:'mediumDate' }}</span>
@@ -26,7 +27,7 @@
                 <h4>Top 3 Players</h4>
                 <ol class="top-players">
                     <li *ngFor="let player of getTopPlayers(tournament)">
-                        {{ player.name }} - {{ getPlayerPoints(tournament, player) }} points
+                        {{ player.name }}
                     </li>
                 </ol>
             </div>

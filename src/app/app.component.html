@@ -18,11 +18,11 @@
 <main class="main-content">
     <div class="app-container">
 
-        @if(selectedTournament(); as tournament) {
+        @if (selectedTournament(); as tournament) {
         <app-tournament-details [tournament]="tournament"></app-tournament-details>
         } @if (selectedSeries(); as series) {
         <app-series-view [series]="series"></app-series-view>
-        } @if (isAdmin && ((!selectedTournament() && !selectedSeries()) || currentlyPlayedTournament || showTournamentCreation)) {
+        } @if (isAdmin && ((!selectedTournament() && !selectedSeries()) || (!selectedSeries() && currentlyPlayedTournament) || showTournamentCreation)) {
         <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
         }
     </div>

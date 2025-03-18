@@ -41,9 +41,15 @@
                                             @if (!result.match.completed ||editingMatch === result.match) {
                                             <ng-container>
                                                 <div class="match-input ">
-                                                    <input type="text " [(ngModel)]="result.match.player1Score " class="score-input" maxlength="1" (keypress)="validateScoreInput($event) " (input)="formatScoreInput($event) "> :
-                                                    <input type="text " [(ngModel)]="result.match.player2Score " class="score-input" maxlength="1" (keypress)="validateScoreInput($event) " (input)="formatScoreInput($event) ">
-                                                    <button (click)="submitResult(result.match) " class="btn-small " [disabled]="!isValidScore(result.match) ">✓</button>
+                                                    @if (result.match.player1.id === player1.id) {
+                                                        <input type="number" id="player1Score" min="0" max="3" [(ngModel)]="result.match.player1Score" class="score-input" (input)="formatScoreInput($event, result.match, true)"/> :
+                                                        <input type="number" id="player2Score" min="0" max="3" [(ngModel)]="result.match.player2Score" class="score-input" (input)="formatScoreInput($event, result.match, false)"/>
+                                                    } @else {
+                                                        <input type="number" id="player1ScoreR" min="0" max="3" [(ngModel)]="result.match.player2Score" class="score-input" (input)="formatScoreInput($event, result.match, false)"/> :
+                                                        <input type="number" id="player2ScoreR" min="0" max="3" [(ngModel)]="result.match.player1Score" class="score-input" (input)="formatScoreInput($event, result.match, true)"/>
+                                                    }
+
+                                                    <button (click)="submitResult(result.match)" class="btn-small" [disabled]="!isValidScore(result.match) ">✓</button>
                                                 </div>
                                             </ng-container>
                                             } @if (result.match.completed &&editingMatch !== result.match) {

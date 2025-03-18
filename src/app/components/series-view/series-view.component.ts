@@ -63,4 +63,19 @@ export class SeriesViewComponent {
   openTournamentDetails(tournament: Tournament) {
     this.tournamentService.setCurrentTournament(tournament);
   }
+
+  pointsColor(points: number): string {
+    if (points === 60) {
+      return "gold";
+    }
+    if (points === 48) {
+      return "silver";
+    } 
+
+    if (points === 40) {
+      return "brown";
+    }
+
+    return 'black';
+  }
 }

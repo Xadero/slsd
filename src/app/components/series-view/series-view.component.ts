@@ -36,7 +36,7 @@ export class SeriesViewComponent {
   private loadSeriesData(seriesId: string) {
     this.tournamentService.getTournamentHistory().subscribe((tournaments) => {
       this.seriesTournaments = tournaments
-        .filter((t) => t.series_id === seriesId)
+        .filter((t) => t.series_id === seriesId && t.completed)
         .sort((a, b) => a.date.getTime() - b.date.getTime());
     });
 

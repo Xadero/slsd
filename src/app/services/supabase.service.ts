@@ -38,21 +38,44 @@ export class SupabaseService {
     completed: boolean;
     series_id?: string;
   }) {
-    const { data, error } = await this.supabase
+    // First check if tournament exists
+    const { data: existingTournament } = await this.supabase
       .from("tournaments")
-      .insert([
-        {
+      .select("id")
+      .eq("name", tournament.name)
+      .eq("date", tournament.date.toISOString())
+      .single();
+
+    if (existingTournament) {
+      // Update existing tournament
+      const { data, error } = await this.supabase
+        .from("tournaments")
+        .update({
+          data: tournament.data,
+          completed: tournament.completed,
+          series_id: tournament.series_id,
+        })
+        .eq("id", existingTournament.id)
+        .select();
+
+      if (error) throw error;
+      return data;
+    } else {
+      // Insert new tournament
+      const { data, error } = await this.supabase
+        .from("tournaments")
+        .insert([{
           name: tournament.name,
           date: tournament.date.toISOString(),
           data: tournament.data,
           completed: tournament.completed,
           series_id: tournament.series_id,
-        },
-      ])
-      .select();
+        }])
+        .select();
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data;
+    }
   }
 
   async getTournaments() {

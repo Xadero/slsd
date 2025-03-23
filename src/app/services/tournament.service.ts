@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, map, Observable } from "rxjs";
+import { BehaviorSubject, from, map, Observable } from "rxjs";
 import {
   Tournament,
   Player,
@@ -92,15 +92,30 @@ export class TournamentService {
     }
   }
 
-  private saveTournamentToStorage(tournament: Tournament | null) {
+  private async saveTournamentToStorage(tournament: Tournament | null) {
     if (tournament) {
       localStorage.setItem(
         this.CURRENT_TOURNAMENT_KEY,
         JSON.stringify(tournament)
       );
+      // Save to Supabase
+      await this.supabaseService.saveTournament({
+        name: tournament.name,
+        date: tournament.date,
+        data: tournament,
+        completed: tournament.completed,
+        series_id: tournament.series_id,
+      });
     } else {
       localStorage.removeItem(this.CURRENT_TOURNAMENT_KEY);
     }
+  }
+
+  getIncompleteTournaments(): Observable<Tournament[]> {
+    this.loadInitialData();
+    return this.tournamentHistory.pipe(
+      map(tournaments => tournaments.filter(t => !t.completed))
+    );
   }
 
   private progressToNextRound(matches: Match[], winner: Player, loser: Player, currentRound: string, currentMatchIndex: number): void {
@@ -690,7 +705,7 @@ export class TournamentService {
     return this.tournamentHistory.pipe(
       map((tournaments) => {
         const seriesTournaments = tournaments
-          .filter((t) => t.series_id === seriesId)
+          .filter((t) => t.series_id === seriesId && t.completed)
           .sort(
             (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
           );

@@ -46,6 +46,7 @@
 
 tr.gold-bg {
     background-color: rgba(255, 210, 0, 0.4);
+
     .diagonal {
         background-color: rgba(255, 210, 0, 0.4) !important;
     }
@@ -78,6 +79,11 @@ tr.gold-bg {
     text-align: left;
     font-weight: 500;
     padding-left: 16px;
+    cursor: pointer;
+}
+
+.player-name:hover {
+    background-color: #f0f0f0;
 }
 
 .match-score {
@@ -275,4 +281,14 @@ tr.gold-bg {
     background: #007bff;
     color: white;
     cursor: pointer;
+    margin: 5px;
+}
+
+.add-player {
+    margin-left: 10px;
+    background: #28a745;
+}
+
+.add-player:hover {
+    background: #218838;
 }

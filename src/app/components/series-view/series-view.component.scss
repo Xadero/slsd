@@ -17,18 +17,40 @@
 .rankings-table {
     width: 100%;
     border-collapse: collapse;
+    white-space: nowrap;
 }
 
 .rankings-table th,
 .rankings-table td {
     padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+    text-align: center;
+    border: 2px solid black;
 }
 
 .rankings-table th {
     background: #f8f9fa;
     font-weight: 600;
+    color: #2c3e50;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.rankings-table th.vertical {
+    height: 100px;
+    padding: 0 0;
+    white-space: nowrap;
+    vertical-align: bottom;
+    text-align: center;
+}
+
+.rankings-table th.vertical>div {
+    transform: rotate(-90deg) translateX(60%);
+    transform-origin: center;
+    text-align: center;
+    white-space: normal;
+    width: 65px;
+    display: inline-block;
 }
 
 .tournaments-container {
@@ -75,8 +97,12 @@
 
 .tournament-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
 }
 
 .stat {
@@ -89,11 +115,41 @@
 .label {
     font-size: 0.8em;
     color: #666;
+    margin-bottom: 4px;
 }
 
 .value {
     font-weight: 500;
     color: #2c3e50;
+}
+
+.tournament-details {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.tournament-details h4 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+}
+
+.top-players {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.top-players li {
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .up {
@@ -102,4 +158,16 @@
 
 .down {
     color: red;
+}
+
+.bg-gold {
+    background-color: gold;
+}
+
+.bg-silver {
+    background-color: silver;
+}
+
+.bg-bronze {
+    background-color: #cd7f32;
 }

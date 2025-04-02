@@ -3,63 +3,66 @@
     <h1>{{ series().name }}</h1>
 
     <div class="rankings-container">
-        <h2>Overall Rankings</h2>
+        <h2>Tabela generalna</h2>
         <div class="table-container">
             <table class="rankings-table">
                 <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Player</th>
-                    <th *ngFor="let tournament of seriesTournaments; let i = index">
-                        {{ tournament.name }}
-                    </th>
-                    <th>Total Points</th>
-                    <th>180s</th>
-                    <th>171s</th>
-                    <th>HF</th>
-                    <th>BL</th>
-                    <th>Leg +/-</th>
-                    <th>Matches</th>
-                    <th>Legs</th>
-                    <th>Won Legs %</th>
-                    <th>Won Matches %</th>
-                    <th>Change</th>
-                </tr>
+                    <tr>
+                        <th class="vertical">
+                            <div>Miejsce</div>
+                        </th>
+                        <th></th>
+                        <th>Zawodnik</th>
+                        <th *ngFor="let tournament of seriesTournaments; let i = index" class="vertical">
+                            <div>Turniej {{ i + 1 }}</div>
+                        </th>
+                        <th>Pkt</th>
+                        <th>180</th>
+                        <th>171</th>
+                        <th>HF</th>
+                        <th>BL</th>
+                        <th>Mecze</th>
+                        <th>Legi</th>
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(50%)">Bilans legów</div>
+                        </th>
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(40%)">Wygranych legów</div>
+                        </th>
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(40%)">Wygranych meczy</div>
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let ranking of seriesRankings; let i = index">
-                    <td>{{ i + 1 }}</td>
-                    <td>{{ ranking.player.name }}</td>
-                    <td *ngFor="let points of ranking.tournamentPoints">
-                        {{ !!points ? points : '-' }}
-                    </td>
-                    <td>{{ ranking.totalPoints }}</td>
-                    <td>{{ ranking.total180s }}</td>
-                    <td>{{ ranking.total171s }}</td>
-                    <td>{{ ranking.highestFinish }}</td>
-                    <td>{{ ranking.bestLeg }}</td>
-                    <td>{{ ranking.legDifference }}</td>
-                    <td>{{ ranking.matchesPlayed }}</td>
-                    <td>{{ ranking.legsPlayed }}</td>
-                    <td>{{ ranking.wonLegsPercentage | number : "1.1-1" }}%</td>
-                    <td>{{ ranking.wonMatchesPercentage | number : "1.1-1" }}%</td>
-                    <td>
+                    <tr *ngFor="let ranking of seriesRankings; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td>
                             <span [class.up]="ranking.rankChange > 0" [class.down]="ranking.rankChange < 0">
-                  {{
-                                    ranking.rankChange > 0
-                                        ? "↑"
-                                        : ranking.rankChange < 0
-                                            ? "↓"
-                                            : "-"
-                                }}
                                 {{
-                                    ranking.rankChange !== 0
-                                        ? Math.abs(ranking.rankChange)
-                                        : ""
-                                }}
-                </span>
-                    </td>
-                </tr>
+                                ranking.rankChange > 0
+                                ? "↑"
+                                : ranking.rankChange < 0 ? "↓" : "-" }} {{ ranking.rankChange !==0 ?
+                                    Math.abs(ranking.rankChange) : "" }} </span>
+                        </td>
+                        <td style="font-weight: bold;">{{ ranking.player.name }}</td>
+                        <td *ngFor="let points of ranking.tournamentPoints"
+                            [ngClass]="points === 40 ? 'bg-gold' : points === 32 ? 'bg-silver' : points === 30 ? 'bg-bronze' : ''">
+                            {{ !!points ? points : '-' }}
+                        </td>
+                        <td style="font-weight: bold;">{{ ranking.totalPoints }}</td>
+                        <td>{{ ranking.total180s }}</td>
+                        <td>{{ ranking.total171s }}</td>
+                        <td>{{ ranking.highestFinish }}</td>
+                        <td>{{ ranking.bestLeg }}</td>
+                        <td>{{ ranking.matchesPlayed }}</td>
+                        <td>{{ ranking.legsPlayed }}</td>
+                        <td
+                            [ngStyle]="{'background-color': ranking.legDifference === 0 ? '#f7f30a' : (ranking.legDifference > 0 ? '#33ab15' : '#d12815') }">
+                            {{ ranking.legDifference }}</td>
+                        <td>{{ ranking.wonLegsPercentage | number : "1.1-1" }}%</td>
+                        <td>{{ ranking.wonMatchesPercentage | number : "1.1-1" }}%</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

@@ -47,16 +47,31 @@
 .nav-link.highlight {
     background: #e63946;
     color: white;
+
+    &:hover {
+        background: #dc2f3c;
+    }
 }
 
 .nav-link.success {
     background: green;
     color: white;
+
+    &:hover {
+        background: darkgreen;
+    }
 }
 
-.nav-link.highlight:hover {
-    background: #dc2f3c;
+.nav-link.warning {
+    background: goldenrod;
+    color: white;
+
+    &:hover {
+        background: orange;
+    }
 }
+
+
 
 .main-content {
     margin-top: 80px;

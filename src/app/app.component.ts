@@ -9,7 +9,8 @@ import { Subscription } from "rxjs";
 import { AuthService } from "./services/auth.service";
 import { AuthDialogComponent } from "./components/auth-dialog/auth-dialog.component";
 import { Dialog } from "@angular/cdk/dialog";
-import {Tournament, TournamentSeries} from "./models/tournament.model";
+import { Tournament, TournamentSeries } from "./models/tournament.model";
+import { IncompleteTournamentsDialogComponent } from "./components/incomplete-tournaments-dialog/incomplete-tournaments-dialog.component";
 
 @Component({
   selector: "app-root",
@@ -99,6 +100,17 @@ export class AppComponent implements OnDestroy {
     this.dialog.open(AuthDialogComponent);
   }
 
+  showIncompleteTournaments() {
+    const dialogRef = this.dialog.open(IncompleteTournamentsDialogComponent);
+    dialogRef.closed.subscribe((tournament) => {
+      if (tournament) {
+        this.tournamentService.setCurrentTournament(tournament as Tournament);
+        this.currentlyPlayedTournament = true;
+        this.showNewTournament()
+      }
+    });
+  }
+
   async showNewTournament() {
     if (this.currentlyPlayedTournament) {
       this.selectedTournament.set(undefined);
@@ -122,7 +134,6 @@ export class AppComponent implements OnDestroy {
     this.tournamentService.getTournamentSeries().subscribe((series) => {
       if (series.length > 0) {
         this.tournamentService.getTournamentHistory().subscribe((tournaments) => {
-
           const latestTournament = tournaments.reduce((latest, current) =>
               current.date > latest.date ? current : latest
           );

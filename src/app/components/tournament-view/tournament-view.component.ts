@@ -8,6 +8,7 @@ import {
   Match,
   PlayerRanking,
   TournamentSeries,
+  Group,
 } from "../../models/tournament.model";
 import { TournamentKnockoutStageComponent } from "./tournament-knockout-stage/tournament-knockout-stage.component";
 import { GroupStageComponent } from "./tournament-group-stage/tournament-group-stage.component";
@@ -171,5 +172,9 @@ export class TournamentViewComponent implements OnInit {
       (x) => x.id === this.tournament?.series_id
     );
     return series ? series.name : "";
+  }
+
+  handleUpdateGroup() {
+    this.tournamentService.setCurrentTournament(this.tournament);
   }
 }

@@ -96,38 +96,38 @@ export class TournamentHistoryComponent implements OnInit {
       .slice(0, 3);
   }
 
-  getPlayerPoints(tournament: Tournament, player: { name: string }): number {
-    let points = 0;
+  // getPlayerPoints(tournament: Tournament, player: { name: string }): number {
+  //   let points = 0;
 
-    // Group stage points
-    tournament.groups.forEach((group) => {
-      group.matches.forEach((match) => {
-        if (!match.completed) return;
-        if (
-          (match.player1.name === player.name &&
-            match.player1Score! > match.player2Score!) ||
-          (match.player2.name === player.name &&
-            match.player2Score! > match.player1Score!)
-        ) {
-          points += 2;
-        }
-      });
-    });
+  //   // Group stage points
+  //   tournament.groups.forEach((group) => {
+  //     group.matches.forEach((match) => {
+  //       if (!match.completed) return;
+  //       if (
+  //         (match.player1.name === player.name &&
+  //           match.player1Score! > match.player2Score!) ||
+  //         (match.player2.name === player.name &&
+  //           match.player2Score! > match.player1Score!)
+  //       ) {
+  //         points += 2;
+  //       }
+  //     });
+  //   });
 
-    // Knockout stage points
-    tournament.knockoutMatches.forEach((match) => {
-      if (!match.completed) return;
-      if (
-        (match.player1.name === player.name &&
-          match.player1Score! > match.player2Score!) ||
-        (match.player2.name === player.name &&
-          match.player2Score! > match.player1Score!)
-      ) {
-        points +=
-          match.round === "Final" ? 12 : match.round === "Semi-Finals" ? 8 : 5;
-      }
-    });
+  //   // Knockout stage points
+  //   tournament.knockoutMatches.forEach((match) => {
+  //     if (!match.completed) return;
+  //     if (
+  //       (match.player1.name === player.name &&
+  //         match.player1Score! > match.player2Score!) ||
+  //       (match.player2.name === player.name &&
+  //         match.player2Score! > match.player1Score!)
+  //     ) {
+  //       points +=
+  //         match.round === "Final" ? 12 : match.round === "Semi-Finals" ? 8 : 5;
+  //     }
+  //   });
 
-    return points;
-  }
+  //   return points;
+  // }
 }

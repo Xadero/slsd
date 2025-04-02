@@ -36,7 +36,7 @@ export class SeriesViewComponent {
   private loadSeriesData(seriesId: string) {
     this.tournamentService.getTournamentHistory().subscribe((tournaments) => {
       this.seriesTournaments = tournaments
-        .filter((t) => t.series_id === seriesId)
+        .filter((t) => t.series_id === seriesId && t.completed)
         .sort((a, b) => a.date.getTime() - b.date.getTime());
     });
 
@@ -62,5 +62,20 @@ export class SeriesViewComponent {
 
   openTournamentDetails(tournament: Tournament) {
     this.tournamentService.setCurrentTournament(tournament);
+  }
+
+  pointsColor(points: number): string {
+    if (points === 60) {
+      return "gold";
+    }
+    if (points === 48) {
+      return "silver";
+    } 
+
+    if (points === 40) {
+      return "brown";
+    }
+
+    return 'black';
   }
 }

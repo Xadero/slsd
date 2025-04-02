@@ -382,16 +382,29 @@ export class TournamentDetailsComponent implements OnInit {
           finalMatch.player1.id === player.id ||
           finalMatch.player2.id === player.id
         ) {
-          return 32;
+          return 34;
         }
       }
 
-      const semiFinalists = this.tournament().knockoutMatches
-        .filter((m) => m.round === "Semi-Finals" && m.completed)
-        .flatMap((m) => [m.player1.id, m.player2.id]);
+      const thirdPlace = this.tournament().knockoutMatches.find(
+        (m) => m.round === "Third Place" && m.completed
+      );
+      if (thirdPlace) {
+        if (
+          (thirdPlace.player1.id === player.id &&
+            thirdPlace.player1Score! > thirdPlace.player2Score!) ||
+          (thirdPlace.player2.id === player.id &&
+            thirdPlace.player2Score! > thirdPlace.player1Score!)
+        ) {
+          return 30;
+        }
 
-      if (semiFinalists.includes(player.id)) {
-        return 24;
+        if (
+          thirdPlace.player1.id === player.id ||
+          thirdPlace.player2.id === player.id
+        ) {
+          return 28;
+        }
       }
 
       const quarterFinalists = this.tournament().knockoutMatches

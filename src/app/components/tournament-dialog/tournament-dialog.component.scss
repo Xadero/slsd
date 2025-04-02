@@ -2,7 +2,6 @@
     background: white;
     border-radius: 8px;
     padding: 20px;
-    max-width: 900px;
     max-height: 80vh;
     overflow-y: auto;
 }
@@ -44,7 +43,7 @@
 
 .groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(4, minmax(300px, 1fr));
     gap: 20px;
 }
 
@@ -63,13 +62,16 @@
 .results-table th,
 .results-table td {
     padding: 8px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #eee;
+    width: 120px;
 }
 
 .results-table .score {
     text-align: center;
     font-weight: 500;
+    width: 45px;
+    max-width: 45px;
 }
 
 .winner {
@@ -94,8 +96,8 @@
 .standings-table th,
 .standings-table td {
     padding: 6px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+    text-align: center;
+    border: 1px solid #eee;
 }
 
 .knockout-results {

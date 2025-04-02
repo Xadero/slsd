@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, input, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MatAccordion, MatExpansionModule } from "@angular/material/expansion";
 import { GroupStageDialogComponent } from "./tournament-group-stage-dialog/group-stage-dialog.component";
+import { PlayerSelectionDialogComponent } from "./player-selection-dialog/player-selection-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
 import {
   Group,
@@ -23,9 +24,10 @@ export class GroupStageComponent {
   @Input() tournament!: Tournament;
   @Output() onMatchUpdate = new EventEmitter<Match>();
   @Output() onGroupStageComplete = new EventEmitter<number>();
+  @Output() onGroupUpdate = new EventEmitter<void>();
+  availablePlayers = input<Player[]>([]);
   public showMatchesList: boolean = true;
   editingMatch: Match | null = null;
-  qualifyingPlayers: number = 8;
 
   constructor(
     private tournamentService: TournamentService,
@@ -43,44 +45,118 @@ export class GroupStageComponent {
 
     const isReversed = match.player1.id === player2.id;
     const score = match.completed
-      ? `${isReversed ? match.player2Score : match.player1Score} : ${
-          isReversed ? match.player1Score : match.player2Score
-        }`
+      ? isReversed
+          ? `${match.player2Score} : ${match.player1Score}`
+          : `${match.player1Score} : ${match.player2Score}`
       : "";
 
     return {
-      match: isReversed
-        ? {
-            ...match,
-            player1Score: match.player2Score,
-            player2Score: match.player1Score,
-            player1: match.player2,
-            player2: match.player1,
-          }
-        : match,
+      match: match,
       score,
     };
   }
 
-  validateScoreInput(event: KeyboardEvent): boolean {
-    const input = event.key;
-    const isNumber = /[0-3]/.test(input);
-    if (!isNumber) {
-      event.preventDefault();
-      return false;
-    }
-    return true;
-  }
-
-  formatScoreInput(event: Event): void {
+  formatScoreInput(event: Event, match: Match, player1: boolean): void {
     const input = event.target as HTMLInputElement;
     const value = input.value;
+
     let cleanValue = value.replace(/[^0-3]/g, "");
+
     if (cleanValue.length > 0) {
       cleanValue = cleanValue[0];
     }
+
     input.value = cleanValue;
+    if (player1) {
+      match.player1Score = parseInt(cleanValue);
+    }
+    else {
+      match.player2Score = parseInt(cleanValue);
+    }
   }
+
+  private openPlayerChangeDialog(isNewPlayer: boolean) {
+    return this.dialog.open(PlayerSelectionDialogComponent, {
+      data: {
+        players: this.getPlayersToChange(),
+        isNewPlayer: isNewPlayer
+      }
+    });
+  }
+
+  async addPlayerToGroup(group: Group) {
+    this.openPlayerChangeDialog(true).afterClosed().subscribe(async (result: {player: Player, created: boolean}) => {
+      if (!result || !result.player) return;
+      if (result.player) {
+        let finalPlayer = result.player;
+        // If this is a new player, create it in the database
+        if (result.created) {
+          try {
+            finalPlayer = await this.tournamentService.createPlayer(result.player.name);
+          } catch (error) {
+            console.error('Error creating new player:', error);
+            return;
+          }
+        }
+        
+        // Add player to group
+        group.players.push(finalPlayer);
+        
+        // Create new matches for this player
+        const newMatches = group.players
+          .filter(p => p.id !== finalPlayer.id)
+          .map(opponent => ({
+            id: Date.now() + Math.random(),
+            player1: finalPlayer,
+            player2: opponent,
+            completed: false,
+            groupId: group.id,
+            showStats: false,
+            player1Stats: {
+              count180s: 0,
+              count171s: 0,
+              highestFinish: 0,
+              bestLeg: 0,
+            },
+            player2Stats: {
+              count180s: 0,
+              count171s: 0,
+              highestFinish: 0,
+              bestLeg: 0,
+            },
+          }));
+
+        group.matches.push(...newMatches);
+        this.onGroupUpdate.emit();
+      }
+    });
+  }
+
+  changePlayer(group: Group, currentPlayer: Player) {
+    this.openPlayerChangeDialog(false).afterClosed().subscribe((result: {player: Player, created: boolean}) => {
+      if (result.player && result.player.id !== currentPlayer.id) {
+        // Update player in group players array
+        const playerIndex = group.players.findIndex(p => p.id === currentPlayer.id);
+        if (playerIndex !== -1) {
+          group.players[playerIndex] = result.player;
+        }
+
+        // Update player in matches
+        group.matches.forEach(match => {
+          if (match.player1.id === currentPlayer.id) {
+            match.player1 = result.player;
+          }
+          if (match.player2.id === currentPlayer.id) {
+            match.player2 = result.player;
+          }
+        });
+
+        this.onGroupUpdate.emit();
+      }
+    });
+  }
+
+  isModalOpen = false;
 
   openModal() {
     const dialogRef = this.dialog.open(GroupStageDialogComponent, {
@@ -98,72 +174,72 @@ export class GroupStageComponent {
 
   getPlayerPoints(group: Group, player: Player): number {
     return group.matches
-      .filter(
-        (m) =>
-          m.completed &&
-          (m.player1.id === player.id || m.player2.id === player.id)
-      )
-      .reduce((points, match) => {
-        if (
-          (match.player1.id === player.id &&
-            match.player1Score! > match.player2Score!) ||
-          (match.player2.id === player.id &&
-            match.player2Score! > match.player1Score!)
-        ) {
-          return points + 2;
-        }
-        return points;
-      }, 0);
+        .filter(
+            (m) =>
+                m.completed &&
+                (m.player1.id === player.id || m.player2.id === player.id)
+        )
+        .reduce((points, match) => {
+          if (
+              (match.player1.id === player.id &&
+                  match.player1Score! > match.player2Score!) ||
+              (match.player2.id === player.id &&
+                  match.player2Score! > match.player1Score!)
+          ) {
+            return points + 2;
+          }
+          return points;
+        }, 0);
   }
 
   private getPlayerBalance(
-    group: Group,
-    player: Player
+      group: Group,
+      player: Player
   ): { scored: number; conceded: number } {
     let scored = 0;
     let conceded = 0;
 
     group.matches
-      .filter(
-        (m) =>
-          m.completed &&
-          (m.player1.id === player.id || m.player2.id === player.id)
-      )
-      .forEach((match) => {
-        if (match.player1.id === player.id) {
-          scored += match.player1Score!;
-          conceded += match.player2Score!;
-        } else {
-          scored += match.player2Score!;
-          conceded += match.player1Score!;
-        }
-      });
+        .filter(
+            (m) =>
+                m.completed &&
+                (m.player1.id === player.id || m.player2.id === player.id)
+        )
+        .forEach((match) => {
+          if (match.player1.id === player.id) {
+            scored += match.player1Score!;
+            conceded += match.player2Score!;
+          } else {
+            scored += match.player2Score!;
+            conceded += match.player1Score!;
+          }
+        });
 
     return { scored, conceded };
   }
 
   public displayLegBalance(
-    group: Group,
-    player: Player,
-    calculate = true
+      group: Group,
+      player: Player,
+      calculate = true
   ): string {
     const balance = this.getPlayerBalance(group, player);
     return calculate
-      ? (balance.scored - balance.conceded).toString()
-      : `${balance.scored}:${balance.conceded}`;
+        ? (balance.scored - balance.conceded).toString()
+        : `${balance.scored}:${balance.conceded}`;
   }
 
   isValidScore(match: Match): boolean {
     return (
-      match.player1Score !== undefined &&
-      match.player1Score !== null &&
-      match.player2Score !== undefined &&
-      match.player2Score !== null &&
-      match.player1Score !== match.player2Score &&
-      match.player1Score >= 0 &&
-      match.player1Score <= 3 &&
-      match.player2Score >= 0 &&
-      match.player2Score <= 3
+        match.player1Score !== undefined &&
+        match.player1Score !== null &&
+        match.player2Score !== undefined &&
+        match.player2Score !== null &&
+        match.player1Score !== match.player2Score &&
+        match.player1Score >= 0 &&
+        match.player1Score <= 3 &&
+        match.player2Score >= 0 &&
+        match.player2Score <= 3
     );
   }
 
@@ -198,7 +274,7 @@ export class GroupStageComponent {
   getAllGroupMatchesSorted(): Match[] {
     const allMatches: Match[] = [];
     const maxMatches = Math.max(
-      ...this.tournament.groups.map((group) => group.matches.length)
+        ...this.tournament.groups.map((group) => group.matches.length)
     );
 
     for (let i = 0; i < maxMatches; i++) {
@@ -218,12 +294,26 @@ export class GroupStageComponent {
 
     const standings = this.tournamentService.getGroupStandings(group);
     const position = standings.findIndex((s) => s.player.id === player.id) + 1;
-    return position.toString();
+    return position ? `${position}${this.getOrdinalSuffix(position)}` : "";
+  }
+
+  private getOrdinalSuffix(n: number): string {
+    if (n > 3 && n < 21) return "th";
+    switch (n % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
   }
 
   areAllMatchesCompleted(): boolean {
     return this.tournament.groups.every((group) =>
-      group.matches.every((match) => match.completed)
+        group.matches.every((match) => match.completed)
     );
   }
 
@@ -252,16 +342,22 @@ export class GroupStageComponent {
   }
 
   private getHeadToHeadResult(
-    group: Group,
-    player: Player,
-    playerPoints: number
+      group: Group,
+      player: Player,
+      playerPoints: number
   ): number {
+    const matches = group.matches.filter(x => x.player1.id === player.id || x.player2.id === player.id);
     const match = group.matches.find(
-      (m) =>
-        (m.player1.id === player.id || m.player2.id === player.id) &&
-        m.completed &&
-        (this.getPlayerPoints(group, m.player1) === playerPoints ||
-          this.getPlayerPoints(group, m.player2) === playerPoints)
+        (m) => {
+          if (m.player1.id === player.id) {
+            return this.getPlayerPoints(group, m.player2) === playerPoints
+          }
+          else if (m.player2.id === player.id) {
+            return this.getPlayerPoints(group, m.player1) === playerPoints
+          }
+          else return false;
+        }
+
     );
 
     if (!match) return 0;
@@ -270,6 +366,16 @@ export class GroupStageComponent {
       return match.player1Score! > match.player2Score! ? 1 : -1;
     } else {
       return match.player2Score! > match.player1Score! ? 1 : -1;
+    }
+  }
+
+  private getPlayersToChange() {
+    if (this.tournament && this.tournament.participants) {
+      return this.availablePlayers().filter(
+        player => !this.tournament.participants.some(rankedPlayer => rankedPlayer.id === player.id)
+      );
+    } else {
+      return [];
     }
   }
 }

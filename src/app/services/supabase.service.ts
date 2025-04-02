@@ -5,6 +5,7 @@ import {
   Tournament,
   PlayerRanking,
   TournamentSeries,
+  Player,
 } from "../models/tournament.model";
 
 @Injectable({
@@ -117,6 +118,50 @@ export class SupabaseService {
 
     if (error) throw error;
     return data;
+  }
+
+  async createPlayer(player: { name: string }): Promise<Player> {
+    const { data, error } = await this.supabase
+      .from("player_rankings")
+      .insert([{
+        player_id: Date.now(),
+        player_name: player.name,
+        total_points: 0,
+        rank_change: 0,
+        tournament_points: [],
+        total_180s: 0,
+        total_171s: 0,
+        highest_finish: 0,
+        best_leg: 0,
+        leg_difference: 0,
+        matches_played: 0,
+        legs_played: 0,
+        legs_won: 0,
+        matches_won: 0
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return {
+      id: data.player_id,
+      name: data.player_name,
+      totalPoints: data.total_points
+    };
+  }
+
+  async getPlayers(): Promise<Player[]> {
+    const { data, error } = await this.supabase
+      .from("player_rankings")
+      .select("*")
+      .order("player_name");
+
+    if (error) throw error;
+    return data.map(p => ({
+      id: p.player_id,
+      name: p.player_name,
+      totalPoints: p.total_points
+    }));
   }
 
   async updatePlayerRankings(rankings: PlayerRanking[]) {

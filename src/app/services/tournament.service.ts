@@ -149,16 +149,21 @@ export class TournamentService {
             bestLeg: 0
           }
         });
-      } else if (!quarterFinalMatch.completed) {
-        // Fill in the appropriate slot in existing quarter-final match
-        if (quarterFinalMatch.player1.id === -1) {
+      } else {
+        // Replace the corresponding player in the quarter-final match
+        const isFirstMatch = currentMatchIndex % 2 === 0;
+        if (isFirstMatch) {
           quarterFinalMatch.player1 = winner;
         } else {
           quarterFinalMatch.player2 = winner;
         }
+        // Reset match completion and scores when players change
+        quarterFinalMatch.completed = false;
+        quarterFinalMatch.player1Score = undefined;
+        quarterFinalMatch.player2Score = undefined;
       }
     } else if (currentRound === 'Quarter-Finals') {
-      const semiFinalIndex = Math.floor((matches.length > 8 ? currentMatchIndex - 6 : currentMatchIndex) / (matches.length > 8 ? 4 : 2));
+      const semiFinalIndex = Math.floor(currentMatchIndex / 2);
       const semiFinalMatch = matches.find(m =>
           m.round === 'Semi-Finals' &&
           matches.filter(sm => sm.round === 'Semi-Finals' && sm.id < m.id).length === semiFinalIndex
@@ -185,12 +190,18 @@ export class TournamentService {
             bestLeg: 0
           }
         });
-      } else if (!semiFinalMatch.completed) {
-        if (semiFinalMatch.player1.id === -1) {
+      } else {
+        // Replace the corresponding player in the semi-final match
+        const isFirstMatch = currentMatchIndex % 2 === 0;
+        if (isFirstMatch) {
           semiFinalMatch.player1 = winner;
         } else {
           semiFinalMatch.player2 = winner;
         }
+        // Reset match completion and scores when players change
+        semiFinalMatch.completed = false;
+        semiFinalMatch.player1Score = undefined;
+        semiFinalMatch.player2Score = undefined;
       }
     } else if (currentRound === 'Semi-Finals') {
       const finalMatch = matches.find(m => m.round === 'Final');
@@ -217,26 +228,33 @@ export class TournamentService {
             bestLeg: 0
           }
         });
-      } else if (!finalMatch.completed) {
-        if (finalMatch.player1.id === -1) {
+      } else {
+        // Replace the corresponding player in the final match
+        const isFirstSemiFinal = currentMatchIndex === matches.findIndex(m => m.round === 'Semi-Finals');
+        if (isFirstSemiFinal) {
           finalMatch.player1 = winner;
         } else {
           finalMatch.player2 = winner;
         }
+        // Reset match completion and scores when players change
+        finalMatch.completed = false;
+        finalMatch.player1Score = undefined;
+        finalMatch.player2Score = undefined;
       }
 
-      const otherSemiFinal = matches.find(m =>
-          m.round === 'Semi-Finals' &&
-          m.completed &&
-          m !== matches[currentMatchIndex]
-      );
+      // Handle third place match
+      if (!thirdPlaceMatch) {
+        const otherSemiFinal = matches.find(m =>
+            m.round === 'Semi-Finals' &&
+            m.completed &&
+            m !== matches[currentMatchIndex]
+        );
 
-      if (otherSemiFinal?.completed) {
-        const otherLoser = otherSemiFinal.player1Score! > otherSemiFinal.player2Score!
-            ? otherSemiFinal.player2
-            : otherSemiFinal.player1;
+        if (otherSemiFinal?.completed) {
+          const otherLoser = otherSemiFinal.player1Score! > otherSemiFinal.player2Score!
+              ? otherSemiFinal.player2
+              : otherSemiFinal.player1;
 
-        if (!thirdPlaceMatch) {
           matches.push({
             id: Date.now(),
             player1: loser,
@@ -258,9 +276,21 @@ export class TournamentService {
             }
           });
         }
+      } else {
+        // Update third place match players
+        const isFirstSemiFinal = currentMatchIndex === matches.findIndex(m => m.round === 'Semi-Finals');
+        if (isFirstSemiFinal) {
+          thirdPlaceMatch.player1 = loser;
+        } else {
+          thirdPlaceMatch.player2 = loser;
+        }
+        // Reset match completion and scores when players change
+        thirdPlaceMatch.completed = false;
+        thirdPlaceMatch.player1Score = undefined;
+        thirdPlaceMatch.player2Score = undefined;
       }
     }
-  }
+}
 
   createTournament(
     name: string,
@@ -936,11 +966,6 @@ export class TournamentService {
     tournament: Tournament
   ): number {
     let points = 0;
-
-    if (player.name === 'Osoba 21') {
-      console.log('x')
-    }
-
     
     if (tournament.completed && tournament.knockoutStageStarted) {
       const finalMatch = tournament.knockoutMatches.find(
@@ -964,13 +989,36 @@ export class TournamentService {
         }
       }
 
-      const semiFinalists = tournament.knockoutMatches
-        .filter((m) => m.round === "Semi-Finals" && m.completed)
-        .flatMap((m) => [m.player1.id, m.player2.id]);
+      if (tournament.completed && tournament.knockoutStageStarted) {
+        const thirdPlaceMatch = tournament.knockoutMatches.find(
+          (m) => m.round === "Third-Place" && m.completed
+        );
+        if (thirdPlaceMatch) {
+          if (
+            (thirdPlaceMatch.player1.id === player.id &&
+              thirdPlaceMatch.player1Score! > thirdPlaceMatch.player2Score!) ||
+            (thirdPlaceMatch.player2.id === player.id &&
+              thirdPlaceMatch.player2Score! > thirdPlaceMatch.player1Score!)
+          ) {
+            return 30;
+          }
 
-      if (semiFinalists.includes(player.id)) {
-        return 24;
+          if (
+            thirdPlaceMatch.player1.id === player.id ||
+            thirdPlaceMatch.player2.id === player.id
+          ) {
+            return 28;
+          }
+        }
       }
+
+      // const semiFinalists = tournament.knockoutMatches
+      //   .filter((m) => m.round === "Semi-Finals" && m.completed)
+      //   .flatMap((m) => [m.player1.id, m.player2.id]);
+
+      // if (semiFinalists.includes(player.id)) {
+      //   return 24;
+      // }
 
       const quarterFinalists = tournament.knockoutMatches
         .filter((m) => m.round === "Quarter-Finals" && m.completed)
@@ -1003,6 +1051,38 @@ export class TournamentService {
     });
 
     return points;
+  }
+
+  async createPlayer(name: string): Promise<Player> {
+    try {
+      const player = await this.supabaseService.createPlayer({ name });
+      const currentRankings = this.playerRankings.value;
+      
+      const newRanking: PlayerRanking = {
+        player,
+        totalPoints: 0,
+        rankChange: 0,
+        currentRank: currentRankings.length + 1,
+        tournamentPoints: [],
+        total180s: 0,
+        total171s: 0,
+        highestFinish: 0,
+        bestLeg: 0,
+        legDifference: 0,
+        matchesPlayed: 0,
+        legsPlayed: 0,
+        legsWon: 0,
+        matchesWon: 0,
+        wonLegsPercentage: 0,
+        wonMatchesPercentage: 0
+      };
+
+      this.playerRankings.next([...currentRankings, newRanking]);
+      return player;
+    } catch (error) {
+      console.error('Error creating player:', error);
+      throw error;
+    }
   }
 
   private async updatePlayerRankings(tournament: Tournament): Promise<void> {

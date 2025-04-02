@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, input, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MatAccordion, MatExpansionModule } from "@angular/material/expansion";
 import { GroupStageDialogComponent } from "./tournament-group-stage-dialog/group-stage-dialog.component";
+import { PlayerSelectionDialogComponent } from "./player-selection-dialog/player-selection-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
 import {
   Group,
@@ -23,6 +24,8 @@ export class GroupStageComponent {
   @Input() tournament!: Tournament;
   @Output() onMatchUpdate = new EventEmitter<Match>();
   @Output() onGroupStageComplete = new EventEmitter<number>();
+  @Output() onGroupUpdate = new EventEmitter<void>();
+  availablePlayers = input<Player[]>([]);
   public showMatchesList: boolean = true;
   editingMatch: Match | null = null;
 
@@ -48,7 +51,7 @@ export class GroupStageComponent {
       : "";
 
     return {
-      match: match, // Return the original match without modification
+      match: match,
       score,
     };
   }
@@ -70,6 +73,87 @@ export class GroupStageComponent {
     else {
       match.player2Score = parseInt(cleanValue);
     }
+  }
+
+  private openPlayerChangeDialog(isNewPlayer: boolean) {
+    return this.dialog.open(PlayerSelectionDialogComponent, {
+      data: {
+        players: this.getPlayersToChange(),
+        isNewPlayer: isNewPlayer
+      }
+    });
+  }
+
+  async addPlayerToGroup(group: Group) {
+    this.openPlayerChangeDialog(true).afterClosed().subscribe(async (result: {player: Player, created: boolean}) => {
+      if (!result || !result.player) return;
+      if (result.player) {
+        let finalPlayer = result.player;
+        // If this is a new player, create it in the database
+        if (result.created) {
+          try {
+            finalPlayer = await this.tournamentService.createPlayer(result.player.name);
+          } catch (error) {
+            console.error('Error creating new player:', error);
+            return;
+          }
+        }
+        
+        // Add player to group
+        group.players.push(finalPlayer);
+        
+        // Create new matches for this player
+        const newMatches = group.players
+          .filter(p => p.id !== finalPlayer.id)
+          .map(opponent => ({
+            id: Date.now() + Math.random(),
+            player1: finalPlayer,
+            player2: opponent,
+            completed: false,
+            groupId: group.id,
+            showStats: false,
+            player1Stats: {
+              count180s: 0,
+              count171s: 0,
+              highestFinish: 0,
+              bestLeg: 0,
+            },
+            player2Stats: {
+              count180s: 0,
+              count171s: 0,
+              highestFinish: 0,
+              bestLeg: 0,
+            },
+          }));
+
+        group.matches.push(...newMatches);
+        this.onGroupUpdate.emit();
+      }
+    });
+  }
+
+  changePlayer(group: Group, currentPlayer: Player) {
+    this.openPlayerChangeDialog(false).afterClosed().subscribe((result: {player: Player, created: boolean}) => {
+      if (result.player && result.player.id !== currentPlayer.id) {
+        // Update player in group players array
+        const playerIndex = group.players.findIndex(p => p.id === currentPlayer.id);
+        if (playerIndex !== -1) {
+          group.players[playerIndex] = result.player;
+        }
+
+        // Update player in matches
+        group.matches.forEach(match => {
+          if (match.player1.id === currentPlayer.id) {
+            match.player1 = result.player;
+          }
+          if (match.player2.id === currentPlayer.id) {
+            match.player2 = result.player;
+          }
+        });
+
+        this.onGroupUpdate.emit();
+      }
+    });
   }
 
   isModalOpen = false;
@@ -282,6 +366,16 @@ export class GroupStageComponent {
       return match.player1Score! > match.player2Score! ? 1 : -1;
     } else {
       return match.player2Score! > match.player1Score! ? 1 : -1;
+    }
+  }
+
+  private getPlayersToChange() {
+    if (this.tournament && this.tournament.participants) {
+      return this.availablePlayers().filter(
+        player => !this.tournament.participants.some(rankedPlayer => rankedPlayer.id === player.id)
+      );
+    } else {
+      return [];
     }
   }
 }

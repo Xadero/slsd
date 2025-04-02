@@ -1,9 +1,11 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Tournament, Match, Player } from "../../../models/tournament.model";
 import { TournamentService } from "../../../services/tournament.service";
 import { map, Observable, of, switchMap } from "rxjs";
+import { MatDialog } from "@angular/material/dialog";
+import { MatchDetailsDialogComponent } from "./match-details-dialog/match-details-dialog.component";
 
 @Component({
   selector: "app-tournament-knockout-stage",
@@ -16,7 +18,14 @@ export class TournamentKnockoutStageComponent {
   @Input() matches: Match[] = [];
   @Input() onSubmitResult!: (match: Match) => void;
 
-  constructor(private tournamentService: TournamentService) {}
+  constructor(
+    private tournamentService: TournamentService,
+    private dialog: MatDialog
+  ) {}
+
+  test (match: Match): boolean {
+    return match.player1.id === -1 || match.player2.id === -1
+  }
   hasRoundOf16(): boolean {
     return this.matches.some((m) => m.round === "Round-16");
   }
@@ -61,19 +70,16 @@ export class TournamentKnockoutStageComponent {
     return match.player2Score! > match.player1Score!;
   }
 
-  isValidScore(match: Match): boolean {
-    return (
-      match.player1Score !== undefined &&
-      match.player2Score !== undefined &&
-      match.player1Score !== match.player2Score &&
-      match.player1Score >= 0 &&
-      match.player2Score >= 0
-    );
-  }
+  openMatchDetails(match: Match) {
+    const dialogRef = this.dialog.open(MatchDetailsDialogComponent, {
+      data: { match: { ...match } },
+      width: '500px'
+    });
 
-  submitResult(match: Match) {
-    if (this.onSubmitResult && this.isValidScore(match)) {
-      this.onSubmitResult(match);
-    }
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.onSubmitResult(result);
+      }
+    });
   }
 }

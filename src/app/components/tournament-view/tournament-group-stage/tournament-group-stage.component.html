@@ -1,13 +1,14 @@
 @if (areAllMatchesCompleted()) {
 <button class="btn primary" (click)="openModal()">Zakończ fazę grupową</button>
 <button class="btn" (click)="showMatchesList = !showMatchesList">
-        {{ showMatchesList ? 'Ukryj' : 'Pokaż' }} kolejność meczy
-    </button> }
+    {{ showMatchesList ? 'Ukryj' : 'Pokaż' }} kolejność meczy
+</button> }
 <div class="tournament-view">
     <div class="groups-container">
         @for (group of tournament.groups; track group.id) {
         <div class="group">
             <h2>Grupa {{ group.id + 1 }}</h2>
+            <button class="btn add-player" (click)="addPlayerToGroup(group)">Add Player</button>
 
             <!-- Matrix-style results table -->
             <div class="matrix-table-container">
@@ -29,9 +30,10 @@
                         @for (player1 of group.players; track player1.id; let i = $index) {
                         <tr [ngClass]="[getPlayerPlace(group, player1) <= 2 ? 'gold-bg' : '']">
                             <td class="rank">{{ i + 1 }}</td>
-                            <td class="player-name">{{ player1.name }}</td>
+                            <td class="player-name" (dblclick)="changePlayer(group, player1)">{{ player1.name }}</td>
                             @for (player2 of group.players; track player2.id; let j = $index) {
-                            <td [class.match-cell]="player1.id !== player2.id" [class.diagonal]="player1.id === player2.id">
+                            <td [class.match-cell]="player1.id !== player2.id"
+                                [class.diagonal]="player1.id === player2.id">
                                 @if (player1.id !== player2.id) {
                                 <ng-container>
                                     @if (this.getMatchResult(group, player1, player2); as result) {
@@ -42,14 +44,23 @@
                                             <ng-container>
                                                 <div class="match-input ">
                                                     @if (result.match.player1.id === player1.id) {
-                                                        <input type="number" id="player1Score" min="0" max="3" [(ngModel)]="result.match.player1Score" class="score-input" (input)="formatScoreInput($event, result.match, true)"/> :
-                                                        <input type="number" id="player2Score" min="0" max="3" [(ngModel)]="result.match.player2Score" class="score-input" (input)="formatScoreInput($event, result.match, false)"/>
+                                                    <input type="number" id="player1Score" min="0" max="3"
+                                                        [(ngModel)]="result.match.player1Score" class="score-input"
+                                                        (input)="formatScoreInput($event, result.match, true)" /> :
+                                                    <input type="number" id="player2Score" min="0" max="3"
+                                                        [(ngModel)]="result.match.player2Score" class="score-input"
+                                                        (input)="formatScoreInput($event, result.match, false)" />
                                                     } @else {
-                                                        <input type="number" id="player1ScoreR" min="0" max="3" [(ngModel)]="result.match.player2Score" class="score-input" (input)="formatScoreInput($event, result.match, false)"/> :
-                                                        <input type="number" id="player2ScoreR" min="0" max="3" [(ngModel)]="result.match.player1Score" class="score-input" (input)="formatScoreInput($event, result.match, true)"/>
+                                                    <input type="number" id="player1ScoreR" min="0" max="3"
+                                                        [(ngModel)]="result.match.player2Score" class="score-input"
+                                                        (input)="formatScoreInput($event, result.match, false)" /> :
+                                                    <input type="number" id="player2ScoreR" min="0" max="3"
+                                                        [(ngModel)]="result.match.player1Score" class="score-input"
+                                                        (input)="formatScoreInput($event, result.match, true)" />
                                                     }
 
-                                                    <button (click)="submitResult(result.match)" class="btn-small" [disabled]="!isValidScore(result.match) ">✓</button>
+                                                    <button (click)="submitResult(result.match)" class="btn-small"
+                                                        [disabled]="!isValidScore(result.match) ">✓</button>
                                                 </div>
                                             </ng-container>
                                             } @if (result.match.completed &&editingMatch !== result.match) {
@@ -105,7 +116,8 @@
                                         {{ match.player1Score }} : {{ match.player2Score }}
                                     </div>
                                     }
-                                    <button (click)="match.showStats=! match.showStats " class="btn-small " [class.active]="match.showStats ">Statystyki</button>
+                                    <button (click)="match.showStats=! match.showStats " class="btn-small "
+                                        [class.active]="match.showStats ">Statystyki</button>
                                 </div>
                             </div>
                             @if (match.showStats) {
@@ -116,19 +128,23 @@
                                     <div class="stat-inputs ">
                                         <div class="stat-input ">
                                             <label>180s:</label>
-                                            <input type="number " [(ngModel)]="match.player1Stats!.count180s " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player1Stats!.count180s "
+                                                class="stat-number-input " />
                                         </div>
                                         <div class="stat-input ">
                                             <label>171s:</label>
-                                            <input type="number " [(ngModel)]="match.player1Stats!.count171s " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player1Stats!.count171s "
+                                                class="stat-number-input " />
                                         </div>
                                         <div class="stat-input ">
                                             <label>HF:</label>
-                                            <input type="number " [(ngModel)]="match.player1Stats!.highestFinish " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player1Stats!.highestFinish "
+                                                class="stat-number-input " />
                                         </div>
                                         <div class="stat-input ">
                                             <label>BL:</label>
-                                            <input type="number " [(ngModel)]="match.player1Stats!.bestLeg " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player1Stats!.bestLeg "
+                                                class="stat-number-input " />
                                         </div>
                                     </div>
                                 </div>
@@ -137,19 +153,23 @@
                                     <div class="stat-inputs ">
                                         <div class="stat-input ">
                                             <label>180s:</label>
-                                            <input type="number " [(ngModel)]="match.player2Stats!.count180s " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player2Stats!.count180s "
+                                                class="stat-number-input " />
                                         </div>
                                         <div class="stat-input ">
                                             <label>171s:</label>
-                                            <input type="number " [(ngModel)]="match.player2Stats!.count171s " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player2Stats!.count171s "
+                                                class="stat-number-input " />
                                         </div>
                                         <div class="stat-input ">
                                             <label>HF:</label>
-                                            <input type="number " [(ngModel)]="match.player2Stats!.highestFinish " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player2Stats!.highestFinish "
+                                                class="stat-number-input " />
                                         </div>
                                         <div class="stat-input ">
                                             <label>BL:</label>
-                                            <input type="number " [(ngModel)]="match.player2Stats!.bestLeg " class="stat-number-input " />
+                                            <input type="number " [(ngModel)]="match.player2Stats!.bestLeg "
+                                                class="stat-number-input " />
                                         </div>
                                     </div>
                                 </div>
@@ -173,16 +193,19 @@
                 <div class="match-header ">
                     <span class="group-label ">Grupa {{ match.groupId! + 1 }}</span>
                     <span class="player-position ">
-                                {{ getPlayerGroupPosition(match.player1, match.groupId!) }} vs {{ getPlayerGroupPosition(match.player2, match.groupId!) }}
-                            </span>
+                        {{ getPlayerGroupPosition(match.player1, match.groupId!) }} vs {{
+                        getPlayerGroupPosition(match.player2, match.groupId!) }}
+                    </span>
                 </div>
                 <div class="match-score ">
                     <div class="player-name ">{{ match.player1.name }}</div>
                     @if (!match.completed || editingMatch === match) {
                     <div class="match-input ">
-                        <input type="number " [(ngModel)]="match.player1Score " class="score-input " placeholder="0 " /> :
+                        <input type="number " [(ngModel)]="match.player1Score " class="score-input " placeholder="0 " />
+                        :
                         <input type="number " [(ngModel)]="match.player2Score " class="score-input " placeholder="0 " />
-                        <button (click)="submitResult(match) " class="btn-small " [disabled]="!isValidScore(match) "> Zakoncz </button>
+                        <button (click)="submitResult(match) " class="btn-small " [disabled]="!isValidScore(match) ">
+                            Zakoncz </button>
                     </div>
                     } @if (match.completed && editingMatch !== match) {
                     <div class="match-result " (dblclick)="startEditing(match) ">

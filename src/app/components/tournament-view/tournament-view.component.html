@@ -98,7 +98,7 @@
     <!-- Group Stage -->
     <app-group-stage *ngIf="!tournament.knockoutStageStarted" [tournament]="tournament"
         (onMatchUpdate)="handleMatchUpdate($event)" (onGroupStageComplete)="handleGroupStageComplete($event)"
-        (onGroupUpdate)="handleUpdateGroup()" [availablePlayers]="availablePlayers">
+        (onGroupUpdate)="handleUpdateGroup($event)" [availablePlayers]="availablePlayers">
     </app-group-stage>
 
     <!-- Knockout Stage -->

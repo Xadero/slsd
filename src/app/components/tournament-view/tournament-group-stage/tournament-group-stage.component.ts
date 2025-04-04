@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, input, signal } from "@angular/core";
+import {Component, Input, Output, EventEmitter, input, signal, OnInit, model, effect} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MatAccordion, MatExpansionModule } from "@angular/material/expansion";
@@ -20,19 +20,30 @@ import { TournamentService } from "../../../services/tournament.service";
   templateUrl: "./tournament-group-stage.component.html",
   styleUrls: ["./tournament-group-stage.component.scss"],
 })
-export class GroupStageComponent {
-  @Input() tournament!: Tournament;
+export class GroupStageComponent implements OnInit {
+  tournament = model<Tournament | null>(null);
   @Output() onMatchUpdate = new EventEmitter<Match>();
   @Output() onGroupStageComplete = new EventEmitter<number>();
-  @Output() onGroupUpdate = new EventEmitter<void>();
+  @Output() onGroupUpdate = new EventEmitter<{participants: Player[], groupId: number, allMatches: Match[]}>();
   availablePlayers = input<Player[]>([]);
   public showMatchesList: boolean = true;
   editingMatch: Match | null = null;
+  allMatches = signal<Match[]>([]);
 
   constructor(
     private tournamentService: TournamentService,
     public dialog: MatDialog
   ) {}
+
+  refreshAllMatches = effect(() => { 
+    if (this.tournament()){
+      this.getAllGroupMatchesSorted()
+    }
+  })
+
+  ngOnInit() {
+    this.getAllGroupMatchesSorted();
+  }
 
   getMatchResult(group: Group, player1: Player, player2: Player) {
     const match = group.matches.find(
@@ -102,32 +113,9 @@ export class GroupStageComponent {
         // Add player to group
         group.players.push(finalPlayer);
         
-        // Create new matches for this player
-        const newMatches = group.players
-          .filter(p => p.id !== finalPlayer.id)
-          .map(opponent => ({
-            id: Date.now() + Math.random(),
-            player1: finalPlayer,
-            player2: opponent,
-            completed: false,
-            groupId: group.id,
-            showStats: false,
-            player1Stats: {
-              count180s: 0,
-              count171s: 0,
-              highestFinish: 0,
-              bestLeg: 0,
-            },
-            player2Stats: {
-              count180s: 0,
-              count171s: 0,
-              highestFinish: 0,
-              bestLeg: 0,
-            },
-          }));
-
-        group.matches.push(...newMatches);
-        this.onGroupUpdate.emit();
+        const participants = this.tournament()?.groups.flatMap(g => g.players);
+        this.onGroupUpdate.emit({participants: participants ?? [], groupId: group.id, allMatches: this.tournamentService.createGroupMatches(group.players, group.id)});
+        this.getAllGroupMatchesSorted();
       }
     });
   }
@@ -151,7 +139,8 @@ export class GroupStageComponent {
           }
         });
 
-        this.onGroupUpdate.emit();
+        const participants = this.tournament()?.groups.flatMap(g => g.players);
+        this.onGroupUpdate.emit({participants: participants ?? [], groupId: group.id, allMatches: []});
       }
     });
   }
@@ -186,7 +175,7 @@ export class GroupStageComponent {
               (match.player2.id === player.id &&
                   match.player2Score! > match.player1Score!)
           ) {
-            return points + 2;
+            return points + 1;
           }
           return points;
         }, 0);
@@ -271,25 +260,27 @@ export class GroupStageComponent {
     }
   }
 
-  getAllGroupMatchesSorted(): Match[] {
+  getAllGroupMatchesSorted() {
+    const tournament = this.tournament();
+    if (!tournament) return;
     const allMatches: Match[] = [];
     const maxMatches = Math.max(
-        ...this.tournament.groups.map((group) => group.matches.length)
+        ...tournament.groups.map((group) => group.matches.length)
     );
 
     for (let i = 0; i < maxMatches; i++) {
-      this.tournament.groups.forEach((group) => {
+      tournament.groups.forEach((group) => {
         if (group.matches[i]) {
           allMatches.push(group.matches[i]);
         }
       });
     }
 
-    return allMatches;
+    this.allMatches.set(allMatches);
   }
 
   getPlayerGroupPosition(player: Player, groupId: number): string {
-    const group = this.tournament?.groups.find((g) => g.id === groupId);
+    const group = this.tournament()?.groups.find((g) => g.id === groupId);
     if (!group) return "";
 
     const standings = this.tournamentService.getGroupStandings(group);
@@ -312,7 +303,8 @@ export class GroupStageComponent {
   }
 
   areAllMatchesCompleted(): boolean {
-    return this.tournament.groups.every((group) =>
+    const tournament = this.tournament();
+    return !tournament ? false : tournament.groups.every((group) =>
         group.matches.every((match) => match.completed)
     );
   }
@@ -370,9 +362,9 @@ export class GroupStageComponent {
   }
 
   private getPlayersToChange() {
-    if (this.tournament && this.tournament.participants) {
+    if (this.tournament() && this.tournament()?.participants) {
       return this.availablePlayers().filter(
-        player => !this.tournament.participants.some(rankedPlayer => rankedPlayer.id === player.id)
+        player => !this.tournament()?.participants.some(rankedPlayer => rankedPlayer.id === player.id)
       );
     } else {
       return [];

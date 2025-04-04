@@ -11,13 +11,13 @@
             <a href="#" class="nav-link">Kontakt</a>
 
             @if (showSecretButton) {
-            @if(!(getCurrentUser() | async)) {
-            <div class="nav-link highlight" (click)="openLoginDialog()">Logowanie</div>
-            } @else {
-            <div class="nav-link success" (click)="showNewTournament()">{{currentlyPlayedTournament ? 'Powrót do
-                turnieju' : 'Stwórz turniej'}}</div>
-            }
-            <div class="nav-link warning" (click)="showIncompleteTournaments()">Niedokończone turnieje</div>
+                @if(!(getCurrentUser() | async)) {
+                <div class="nav-link highlight" (click)="openLoginDialog()">Logowanie</div>
+                } @else {
+                <div class="nav-link success" (click)="showNewTournament()">{{currentlyPlayedTournament ? 'Powrót do
+                    turnieju' : 'Stwórz turniej'}}</div>
+                <div class="nav-link warning" (click)="showIncompleteTournaments()">Niedokończone turnieje</div>
+                }
             }
         </nav>
     </div>
@@ -25,12 +25,13 @@
 <main class="main-content">
     <div class="app-container">
         @if (selectedTournament(); as tournament) {
-        <app-tournament-details [tournament]="tournament"></app-tournament-details>
-        } @if (selectedSeries(); as series) {
-        <app-series-view [series]="series"></app-series-view>
-        } @if (isAdmin && ((!selectedTournament() && !selectedSeries()) || (!selectedSeries() &&
-        currentlyPlayedTournament) || showTournamentCreation)) {
-        <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
+            <app-tournament-details [tournament]="tournament"></app-tournament-details>
+        } @else {
+            @if (selectedSeries(); as series) {
+                <app-series-view [series]="series"></app-series-view>
+            } @else {
+                <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
+            }
         }
     </div>
 </main>

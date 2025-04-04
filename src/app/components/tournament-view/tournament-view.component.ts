@@ -174,7 +174,15 @@ export class TournamentViewComponent implements OnInit {
     return series ? series.name : "";
   }
 
-  handleUpdateGroup() {
+  handleUpdateGroup(event: {participants: Player[], groupId: number, allMatches: Match[]}) {
+    this.participants = event.participants;
+    if (this.tournament) {
+      this.tournament.participants = event.participants;
+      if (event.allMatches.length > 0) {
+        this.tournament.groups.find(x => x.id === event.groupId)!.matches = event.allMatches;
+      }
+    }
+
     this.tournamentService.setCurrentTournament(this.tournament);
   }
 }

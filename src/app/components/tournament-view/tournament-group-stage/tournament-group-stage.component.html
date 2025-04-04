@@ -1,8 +1,10 @@
 @if (areAllMatchesCompleted()) {
 <button class="btn primary" (click)="openModal()">Zakończ fazę grupową</button>
+}
 <button class="btn" (click)="showMatchesList = !showMatchesList">
     {{ showMatchesList ? 'Ukryj' : 'Pokaż' }} kolejność meczy
-</button> }
+</button>
+@if (tournament(); as tournament) {
 <div class="tournament-view">
     <div class="groups-container">
         @for (group of tournament.groups; track group.id) {
@@ -185,35 +187,35 @@
     </div>
     <!-- Sequential Matches List -->
     @if (showMatchesList) {
-    <div class="sequential-matches ">
+    <div class="sequential-matches">
         <h2>Kolejność meczy</h2>
-        <div class="matches-container ">
-            @for (match of getAllGroupMatchesSorted(); track match.id) {
-            <div class="match-item " [class.completed]="match.completed ">
-                <div class="match-header ">
-                    <span class="group-label ">Grupa {{ match.groupId! + 1 }}</span>
-                    <span class="player-position ">
+        <div class="matches-container">
+            @for (match of this.allMatches(); track match.id) {
+            <div class="match-item" [class.completed]="match.completed">
+                <div class="match-header">
+                    <span class="group-label">Grupa {{ match.groupId! + 1 }}</span>
+                    <span class="player-position">
                         {{ getPlayerGroupPosition(match.player1, match.groupId!) }} vs {{
                         getPlayerGroupPosition(match.player2, match.groupId!) }}
                     </span>
                 </div>
-                <div class="match-score ">
-                    <div class="player-name ">{{ match.player1.name }}</div>
+                <div class="match-score">
+                    <div class="player-name">{{ match.player1.name }}</div>
                     @if (!match.completed || editingMatch === match) {
-                    <div class="match-input ">
-                        <input type="number " [(ngModel)]="match.player1Score " class="score-input " placeholder="0 " />
+                    <div class="match-input">
+                        <input type="number" [(ngModel)]="match.player1Score" class="score-input" placeholder="0 " />
                         :
-                        <input type="number " [(ngModel)]="match.player2Score " class="score-input " placeholder="0 " />
-                        <button (click)="submitResult(match) " class="btn-small " [disabled]="!isValidScore(match) ">
+                        <input type="number" [(ngModel)]="match.player2Score" class="score-input" placeholder="0 " />
+                        <button (click)="submitResult(match)" class="btn-small" [disabled]="!isValidScore(match) ">
                             Zakoncz </button>
                     </div>
                     } @if (match.completed && editingMatch !== match) {
-                    <div class="match-result " (dblclick)="startEditing(match) ">
+                    <div class="match-result" (dblclick)="startEditing(match) ">
                         {{ match.player1Score }} : {{ match.player2Score }}
                     </div>
                     }
 
-                    <div class="player-name ">{{ match.player2.name }}</div>
+                    <div class="player-name">{{ match.player2.name }}</div>
                 </div>
             </div>
             }
@@ -221,3 +223,4 @@
     </div>
     }
 </div>
+}

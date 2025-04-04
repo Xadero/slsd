@@ -363,7 +363,7 @@ export class TournamentService {
     return groups;
   }
 
-  private createGroupMatches(players: Player[], groupId: number): Match[] {
+  public createGroupMatches(players: Player[], groupId: number): Match[] {
     const matches: Match[] = [];
     const matchOrder = [
       [0, 5],

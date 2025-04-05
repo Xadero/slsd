@@ -67,7 +67,7 @@ export class TournamentHistoryComponent implements OnInit {
           name: winner.name,
           points: 0,
         };
-        playerPoints.set(winner.id, { ...current, points: current.points + 2 });
+        playerPoints.set(winner.id, { ...current, points: current.points + 1 });
       });
     });
 

@@ -52,7 +52,7 @@ export class TournamentDialogComponent {
             (match.player2.id === player.id &&
               match.player2Score! > match.player1Score!)
           ) {
-            return total + 2;
+            return total + 1;
           }
           return total;
         }, 0);

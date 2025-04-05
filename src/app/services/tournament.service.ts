@@ -590,9 +590,9 @@ export class TournamentService {
 
     const pairings: [number, number][] = [
       [0, 7],
+      [2, 5],
       [3, 4],
       [1, 6],
-      [2, 5],
     ];
 
     pairings.forEach(([seed1, seed2]) => {
@@ -637,33 +637,79 @@ export class TournamentService {
   }
 
   getGroupStandings(group: Group): PlayerStanding[] {
-    return group.players
-      .map((player) => {
-        const matches = group.matches.filter(
-          (m) => m.player1.id === player.id || m.player2.id === player.id
-        );
+    const standings = group.players.map((player) => {
+      const matches = group.matches.filter(
+        (m) =>
+          m.completed &&
+          (m.player1.id === player.id || m.player2.id === player.id)
+      );
 
-        const wins = matches.filter(
-          (m) =>
-            (m.player1.id === player.id && m.player1Score! > m.player2Score!) ||
-            (m.player2.id === player.id && m.player2Score! > m.player1Score!)
-        ).length;
+      let wins = 0;
+      let legsWon = 0;
+      let legsConceded = 0;
 
-        const completedMatches = matches.filter((m) => m.completed).length;
-
-        return {
-          player,
-          matches: completedMatches,
-          wins,
-          losses: completedMatches - wins,
-          points: wins * 2,
-        };
-      })
-      .sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points;
-        if (b.wins !== a.wins) return b.wins - a.wins;
-        return b.wins / b.matches - a.wins / a.matches;
+      matches.forEach((match) => {
+        if (match.player1.id === player.id) {
+          if (match.player1Score! > match.player2Score!) wins++;
+          legsWon += match.player1Score!;
+          legsConceded += match.player2Score!;
+        } else {
+          if (match.player2Score! > match.player1Score!) wins++;
+          legsWon += match.player2Score!;
+          legsConceded += match.player1Score!;
+        }
       });
+
+      return {
+        player,
+        matches: matches.length,
+        wins,
+        losses: matches.length - wins,
+        points: wins * 2,
+        legDifference: legsWon - legsConceded,
+        headToHead: new Map() // Will be filled later
+      };
+    });
+
+    // Calculate head-to-head results for players with equal points
+    standings.forEach((standing) => {
+      standings.forEach((opponent) => {
+        if (standing.player.id !== opponent.player.id && standing.points === opponent.points) {
+          const match = group.matches.find(
+            (m) =>
+              m.completed &&
+              ((m.player1.id === standing.player.id && m.player2.id === opponent.player.id) ||
+                (m.player2.id === standing.player.id && m.player1.id === opponent.player.id))
+          );
+
+          if (match) {
+            const isPlayer1 = match.player1.id === standing.player.id;
+            const won = isPlayer1
+              ? match.player1Score! > match.player2Score!
+              : match.player2Score! > match.player1Score!;
+            standing.headToHead.set(opponent.player.id, won ? 1 : -1);
+          }
+        }
+      });
+    });
+
+    // Sort standings based on points, leg difference, and head-to-head
+    return standings.sort((a, b) => b.points - a.points).sort((a, b) => {
+      if (a.points !== b.points) {
+        return b.points - a.points;
+      }
+
+      if (a.legDifference !== b.legDifference) {
+        return b.legDifference - a.legDifference;
+      }
+
+      // If points and leg difference are equal, check head-to-head
+      if (b.headToHead.has(a.player.id)) {
+        return b.headToHead.get(a.player.id)!;
+      }
+
+      return 0;
+    });
   }
 
   getCurrentTournament(): Observable<Tournament | null> {

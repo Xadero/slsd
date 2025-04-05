@@ -12,6 +12,7 @@ import {
 } from "../../models/tournament.model";
 import { TournamentKnockoutStageComponent } from "./tournament-knockout-stage/tournament-knockout-stage.component";
 import { GroupStageComponent } from "./tournament-group-stage/tournament-group-stage.component";
+import { from } from "rxjs";
 
 @Component({
   selector: "app-tournament-view",
@@ -86,13 +87,9 @@ export class TournamentViewComponent implements OnInit {
     }
   }
 
-  addNewPlayer() {
+  async addNewPlayer() {
     if (this.newPlayerName.trim()) {
-      const newPlayer: Player = {
-        id: Date.now(),
-        name: this.newPlayerName.trim(),
-        totalPoints: 0,
-      };
+      const newPlayer = await this.tournamentService.createPlayer(this.newPlayerName)
       this.participants.push(newPlayer);
       this.newPlayerName = "";
     }

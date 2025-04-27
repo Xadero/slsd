@@ -11,6 +11,7 @@ import { AuthDialogComponent } from "./components/auth-dialog/auth-dialog.compon
 import { Dialog } from "@angular/cdk/dialog";
 import { Tournament, TournamentSeries } from "./models/tournament.model";
 import { IncompleteTournamentsDialogComponent } from "./components/incomplete-tournaments-dialog/incomplete-tournaments-dialog.component";
+import { LiveTournamentsComponent } from "./components/live-tournaments/live-tournaments.component";
 
 @Component({
   selector: "app-root",
@@ -22,8 +23,9 @@ import { IncompleteTournamentsDialogComponent } from "./components/incomplete-to
     SeriesViewComponent,
     TournamentNavigationComponent,
     TournamentDetailsComponent,
-    CommonModule
-  ],
+    CommonModule,
+    LiveTournamentsComponent
+],
 })
 export class AppComponent implements OnDestroy {
   showTournamentCreation = false;
@@ -31,6 +33,7 @@ export class AppComponent implements OnDestroy {
   selectedSeries = signal<TournamentSeries | undefined>(undefined);
   selectedTournament = signal<Tournament | undefined>(undefined);
   currentTournament = signal<Tournament | null>(null);
+  isLiveSelected = signal<boolean>(false);
   isNewTournament: boolean = false;
   protected isAdmin = false;
   private authSubscription: Subscription;
@@ -112,6 +115,7 @@ export class AppComponent implements OnDestroy {
   }
 
   async showNewTournament() {
+    this.isLiveSelected.set(false);
     if (this.currentlyPlayedTournament) {
       this.selectedTournament.set(undefined);
       this.selectedSeries.set(undefined);
@@ -154,10 +158,18 @@ export class AppComponent implements OnDestroy {
   selectedTournamentDetails(tournament: Tournament) {
     this.selectedTournament.set(tournament);
     this.selectedSeries.set(undefined);
+    this.isLiveSelected.set(false);
   }
 
   selectedSeriesDetails(tournamentSeries: TournamentSeries) {
     this.selectedSeries.set(tournamentSeries);
+    this.selectedTournament.set(undefined);
+    this.isLiveSelected.set(false);
+  }
+
+  showLiveTournaments() {
+    this.isLiveSelected.set(true);
+    this.selectedSeries.set(undefined);
     this.selectedTournament.set(undefined);
   }
 }

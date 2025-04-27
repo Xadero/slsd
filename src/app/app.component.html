@@ -7,31 +7,38 @@
             <app-tournament-navigation (selectTournamentDetails)="selectedTournamentDetails($event)"
                 (selectSeriesDetails)="selectedSeriesDetails($event)"></app-tournament-navigation>
 
+            <a class="nav-link" (click)="showLiveTournaments()">Live</a>
             <a href="#" class="nav-link">Liga</a>
             <a href="#" class="nav-link">Kontakt</a>
 
             @if (showSecretButton) {
-                @if(!(getCurrentUser() | async)) {
-                <div class="nav-link highlight" (click)="openLoginDialog()">Logowanie</div>
-                } @else {
-                <div class="nav-link success" (click)="showNewTournament()">{{currentlyPlayedTournament ? 'Powrót do
-                    turnieju' : 'Stwórz turniej'}}</div>
-                <div class="nav-link warning" (click)="showIncompleteTournaments()">Niedokończone turnieje</div>
-                }
+            @if(!(getCurrentUser() | async)) {
+            <div class="nav-link highlight" (click)="openLoginDialog()">Logowanie</div>
+            } @else {
+            <div class="nav-link success" (click)="showNewTournament()">{{currentlyPlayedTournament ? 'Powrót do
+                turnieju' : 'Stwórz turniej'}}</div>
+            <div class="nav-link warning" (click)="showIncompleteTournaments()">Niedokończone turnieje</div>
+            }
             }
         </nav>
     </div>
 </header>
 <main class="main-content">
     <div class="app-container">
+        @if(isLiveSelected()) {
+            <app-live-tournaments></app-live-tournaments>
+        }
+        @else {
         @if (selectedTournament(); as tournament) {
-            <app-tournament-details [tournament]="tournament"></app-tournament-details>
+        <app-tournament-details [tournament]="tournament"></app-tournament-details>
         } @else {
-            @if (selectedSeries(); as series) {
-                <app-series-view [series]="series"></app-series-view>
-            } @else {
-                <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
-            }
+        @if (selectedSeries(); as series) {
+        <app-series-view [series]="series"></app-series-view>
+        } @else {
+        <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
+        }
+
+        }
         }
     </div>
 </main>

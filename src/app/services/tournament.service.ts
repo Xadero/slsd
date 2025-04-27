@@ -536,11 +536,6 @@ export class TournamentService {
 
   private createRoundOf16Matches(players: Player[]): Match[] {
     const matches: Match[] = [];
-    const seededPlayers = [...players].sort((a, b) => {
-      const aPoints = this.getPlayerGroupPoints(a);
-      const bPoints = this.getPlayerGroupPoints(b);
-      return bPoints - aPoints;
-    });
 
     // Create Round of 16 matches with seeded pairings
     const pairings: [number, number][] = [
@@ -557,8 +552,8 @@ export class TournamentService {
     pairings.forEach(([seed1, seed2]) => {
       matches.push({
         id: Date.now() + matches.length,
-        player1: seededPlayers[seed1],
-        player2: seededPlayers[seed2],
+        player1: players[seed1],
+        player2: players[seed2],
         completed: false,
         round: "Round-16",
         showStats: false,
@@ -582,24 +577,18 @@ export class TournamentService {
 
   private createQuarterFinalMatches(players: Player[]): Match[] {
     const matches: Match[] = [];
-    const seededPlayers = [...players].sort((a, b) => {
-      const aPoints = this.getPlayerGroupPoints(a);
-      const bPoints = this.getPlayerGroupPoints(b);
-      return bPoints - aPoints;
-    });
-
     const pairings: [number, number][] = [
       [0, 7],
-      [2, 5],
       [3, 4],
+      [2, 5],
       [1, 6],
     ];
 
     pairings.forEach(([seed1, seed2]) => {
       matches.push({
         id: Date.now() + matches.length,
-        player1: seededPlayers[seed1],
-        player2: seededPlayers[seed2],
+        player1: players[seed1],
+        player2: players[seed2],
         completed: false,
         round: "Quarter-Finals",
         showStats: false,

@@ -1,4 +1,4 @@
-@if (!tournament || !isAdminUser()) {
+@if (!tournament && isAdminUser()) {
 <div class="create-tournament">
     <h2>Create New Tournament</h2>
     <div class="form-group">

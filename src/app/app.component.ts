@@ -135,10 +135,17 @@ export class AppComponent implements OnDestroy {
   }
 
   showLastSeries() {
+    this.isLiveSelected.set(false);
     this.tournamentService.getTournamentSeries().subscribe((series) => {
+      if (this.isLiveSelected()) {
+        return;
+      }
       if (series.length > 0) {
         this.tournamentService.getTournamentHistory().subscribe((tournaments) => {
-          const latestTournament = tournaments.reduce((latest, current) =>
+          if (this.isLiveSelected()) {
+            return;
+          }
+          const latestTournament = tournaments.filter(x => x.completed).reduce((latest, current) =>
               current.date > latest.date ? current : latest
           );
 
@@ -156,15 +163,15 @@ export class AppComponent implements OnDestroy {
   }
 
   selectedTournamentDetails(tournament: Tournament) {
+    this.isLiveSelected.set(false);
     this.selectedTournament.set(tournament);
     this.selectedSeries.set(undefined);
-    this.isLiveSelected.set(false);
   }
 
   selectedSeriesDetails(tournamentSeries: TournamentSeries) {
+    this.isLiveSelected.set(false);
     this.selectedSeries.set(tournamentSeries);
     this.selectedTournament.set(undefined);
-    this.isLiveSelected.set(false);
   }
 
   showLiveTournaments() {

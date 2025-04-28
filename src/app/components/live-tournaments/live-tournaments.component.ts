@@ -18,9 +18,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
             No active tournaments at the moment
           </div>
         } @else {
-          <mat-accordion>
+          <mat-accordion [multi]="true">
             @for (tournament of incompleteTournaments; track tournament.id) {
-              <mat-expansion-panel>
+              <mat-expansion-panel [expanded]="true">
                 <mat-expansion-panel-header>
                   <mat-panel-title>
                     {{ tournament.name }}

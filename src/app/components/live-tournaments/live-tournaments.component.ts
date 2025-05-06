@@ -1,9 +1,10 @@
-import { Component, computed, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TournamentService } from '../../services/tournament.service';
 import { Tournament, Match } from '../../models/tournament.model';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-live-tournaments',
@@ -32,13 +33,13 @@ import { MatExpansionModule } from '@angular/material/expansion';
                 
                 <mat-tab-group>
                   <!-- All Matches Tab -->
-                  <mat-tab label="All Matches">
+                  <mat-tab label="Wszystkie mecze">
                     <div class="matches-list">
                       @for (match of getAllMatches(tournament); track match.id) {
                         <div class="match-item" [class.completed]="match.completed">
                           <div class="match-header">
                             @if (match.groupId !== undefined) {
-                              <span class="group-label">Group {{ match.groupId + 1 }}</span>
+                              <span class="group-label">Grupa {{ match.groupId + 1 }}</span>
                             } @else {
                               <span class="round-label">{{ match.round }}</span>
                             }
@@ -50,7 +51,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
                             <div class="match-score">
                               {{ match.completed ? match.player1Score + ' : ' + match.player2Score : 'vs' }}
                             </div>
-                            <div class="player" [class.winner]="isWinner(match, match.player2)">
+                            <div class="player second" [class.winner]="isWinner(match, match.player2)">
                               {{ match.player2.name }}
                             </div>
                           </div>
@@ -63,16 +64,16 @@ import { MatExpansionModule } from '@angular/material/expansion';
                   <mat-tab label="Groups">
                     @for (group of tournament.groups; track group.id) {
                       <div class="group-section">
-                        <h4>Group {{ group.id + 1 }}</h4>
+                        <h4>Grupa {{ group.id + 1 }}</h4>
                         <table class="standings-table">
                           <thead>
                             <tr>
-                              <th>Pos</th>
-                              <th>Player</th>
-                              <th>Played</th>
-                              <th>Won</th>
-                              <th>Lost</th>
-                              <th>Points</th>
+                              <th>Miejsce</th>
+                              <th>Gracz</th>
+                              <th>Mecze</th>
+                              <th>Wygrane</th>
+                              <th>Przegrane</th>
+                              <th>Punkty</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -93,7 +94,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
                             <div class="match-item" [class.completed]="match.completed">
                             <div class="match-header">
                                 @if (match.groupId !== undefined) {
-                                <span class="group-label">Group {{ match.groupId + 1 }}</span>
+                                <span class="group-label">Grupa {{ match.groupId + 1 }}</span>
                                 } @else {
                                 <span class="round-label">{{ match.round }}</span>
                                 }
@@ -118,7 +119,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
   
                   <!-- Knockout Tab -->
                   @if (tournament.knockoutStageStarted) {
-                    <mat-tab label="Knockout">
+                    <mat-tab label="Drabinka">
                       <div class="knockout-section">
                         @for (round of getKnockoutRounds(tournament); track round) {
                           <div class="round-section">
@@ -193,6 +194,10 @@ import { MatExpansionModule } from '@angular/material/expansion';
   
       .player {
         padding: 8px;
+        text-align: right;
+      }
+      .second {
+        text-align: left !important;
       }
   
       .player.winner {
@@ -204,7 +209,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
         font-weight: 500;
         color: #2c3e50;
         text-align: center;
-        min-width: 60px;
+        width: max-content;
+        min-width: 80px;
       }
   
       .group-section {
@@ -268,12 +274,29 @@ import { MatExpansionModule } from '@angular/material/expansion';
       }
     `]
   })
-  export class LiveTournamentsComponent implements OnInit {
+  export class LiveTournamentsComponent implements OnInit, OnDestroy {
     incompleteTournaments: Tournament[] = [];
+    private updateSubscription?: Subscription;
   
     constructor(private tournamentService: TournamentService) {}
   
     ngOnInit() {
+      // Initial load
+      this.loadIncompleteTournaments();
+      
+      // Set up polling every 5 seconds
+      this.updateSubscription = interval(5000).subscribe(() => {
+        this.loadIncompleteTournaments();
+      });
+    }
+
+    ngOnDestroy() {
+      if (this.updateSubscription) {
+        this.updateSubscription.unsubscribe();
+      }
+    }
+
+    private loadIncompleteTournaments() {
       this.tournamentService.getIncompleteTournaments().subscribe(
         tournaments => {
           this.incompleteTournaments = tournaments;
@@ -281,56 +304,56 @@ import { MatExpansionModule } from '@angular/material/expansion';
       );
     }
 
-  getAllMatches(tournament: Tournament): Match[] {
-    const groupMatches: Match[] = [];
-    const maxMatches = Math.max(
-        ...tournament.groups.map((group) => group.matches.length)
-    );
-
-    for (let i = 0; i < maxMatches; i++) {
-      tournament.groups.forEach((group) => {
-        if (group.matches[i]) {
-            groupMatches.push(group.matches[i]);
-        }
-      });
+    getAllMatches(tournament: Tournament): Match[] {
+      const groupMatches: Match[] = [];
+      const maxMatches = Math.max(
+          ...tournament.groups.map((group) => group.matches.length)
+      );
+  
+      for (let i = 0; i < maxMatches; i++) {
+        tournament.groups.forEach((group) => {
+          if (group.matches[i]) {
+              groupMatches.push(group.matches[i]);
+          }
+        });
+      }
+  
+      return [...groupMatches, ...tournament.knockoutMatches];
     }
-
-    return [...groupMatches, ...tournament.knockoutMatches];
-  }
-
-  getGroupStandings(group: any) {
-    return this.tournamentService.getGroupStandings(group)
-      .map((standing, index) => ({
-        ...standing,
-        position: index + 1
-      }));
-  }
-
-  getKnockoutRounds(tournament: Tournament): string[] {
-    const rounds = new Set(tournament.knockoutMatches.map(m => m.round!));
-    return Array.from(rounds).sort((a, b) => this.getRoundOrder(a) - this.getRoundOrder(b));
-  }
-
-  getMatchesByRound(tournament: Tournament, round: string): Match[] {
-    return tournament.knockoutMatches.filter(m => m.round === round);
-  }
-
-  private getRoundOrder(round: string): number {
-    const order = {
-      'Round-16': 1,
-      'Quarter-Finals': 2,
-      'Semi-Finals': 3,
-      'Final': 4,
-      'Third-Place': 5
-    };
-    return order[round as keyof typeof order] || 99;
-  }
-
-  isWinner(match: Match, player: any): boolean {
-    if (!match.completed) return false;
-    if (match.player1.id === player.id) {
-      return match.player1Score! > match.player2Score!;
+  
+    getGroupStandings(group: any) {
+      return this.tournamentService.getGroupStandings(group)
+        .map((standing, index) => ({
+          ...standing,
+          position: index + 1
+        }));
     }
-    return match.player2Score! > match.player1Score!;
+  
+    getKnockoutRounds(tournament: Tournament): string[] {
+      const rounds = new Set(tournament.knockoutMatches.map(m => m.round!));
+      return Array.from(rounds).sort((a, b) => this.getRoundOrder(a) - this.getRoundOrder(b));
+    }
+  
+    getMatchesByRound(tournament: Tournament, round: string): Match[] {
+      return tournament.knockoutMatches.filter(m => m.round === round);
+    }
+  
+    private getRoundOrder(round: string): number {
+      const order = {
+        'Round-16': 1,
+        'Quarter-Finals': 2,
+        'Semi-Finals': 3,
+        'Final': 4,
+        'Third-Place': 5
+      };
+      return order[round as keyof typeof order] || 99;
+    }
+  
+    isWinner(match: Match, player: any): boolean {
+      if (!match.completed) return false;
+      if (match.player1.id === player.id) {
+        return match.player1Score! > match.player2Score!;
+      }
+      return match.player2Score! > match.player1Score!;
+    }
   }
-}

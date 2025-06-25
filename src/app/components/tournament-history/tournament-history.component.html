@@ -1,5 +1,5 @@
 <div class="history-container">
-    <h2>Tournament History</h2>
+    <h2>Zakończone turnieje w cyklu</h2>
     <div class="tournaments-list">
         <div *ngFor="let tournament of tournaments()" class="tournament-card"
             (click)="openTournamentDetails(tournament)">
@@ -10,21 +10,21 @@
 
             <div class="tournament-stats">
                 <div class="stat">
-                    <span class="label">Players:</span>
+                    <span class="label">Zawodników:</span>
                     <span class="value">{{ tournament.participants.length }}</span>
                 </div>
                 <div class="stat">
-                    <span class="label">Groups:</span>
+                    <span class="label">Grupy:</span>
                     <span class="value">{{ tournament.groups.length }}</span>
                 </div>
                 <div class="stat">
-                    <span class="label">Winner:</span>
+                    <span class="label">Zwycięzca:</span>
                     <span class="value">{{ getWinner(tournament)?.name || 'N/A' }}</span>
                 </div>
             </div>
 
             <div class="tournament-details">
-                <h4>Top 3 Players</h4>
+                <h4>Podium</h4>
                 <ol class="top-players">
                     <li *ngFor="let player of getTopPlayers(tournament)">
                         {{ player.name }}

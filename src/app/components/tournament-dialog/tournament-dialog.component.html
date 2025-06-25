@@ -141,23 +141,7 @@
 
     <!-- Tournament Statistics -->
     <div class="section">
-        <h3>Tournament Statistics</h3>
-        <div class="statistics">
-            <div class="stat-item">
-                <span class="stat-label">Total Matches:</span>
-                <span class="stat-value">{{ getTotalMatches() }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Total Points:</span>
-                <span class="stat-value">{{ getTotalPointsScored() }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Avg Score/Match:</span>
-                <span class="stat-value">{{ getAverageScorePerMatch() | number:'1.1-1' }}</span>
-            </div>
-        </div>
-
-        <h4>Player Statistics</h4>
+        <h4>Statystyki zawodników</h4>
         <div class="player-tournament-stats">
             <div *ngFor="let player of tournament.participants" class="player-stat-card">
                 <h5>{{ player.name }}</h5>
@@ -177,10 +161,6 @@
                     <div class="stat-row">
                         <span>Best Leg:</span>
                         <span>{{ getPlayerTournamentStats(player).bestLeg }}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span>Avg Finish:</span>
-                        <span>{{ getPlayerTournamentStats(player).averageFinish | number:'1.1-1' }}</span>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,140 @@
+<div class="live-container">
+    <h2>Live Tournaments</h2>
+
+    @if (incompleteTournaments.length === 0) {
+    <div class="no-tournaments">
+        No active tournaments at the moment
+    </div>
+    } @else {
+    <mat-accordion [multi]="true">
+        @for (tournament of incompleteTournaments; track tournament.id) {
+        <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{ tournament.name }}
+                </mat-panel-title>
+                <mat-panel-description>
+                    {{ tournament.date | date:'medium' }}
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <mat-tab-group>
+                <!-- All Matches Tab -->
+                <mat-tab label="Wszystkie mecze">
+                    <div class="matches-list">
+                        @for (match of getAllMatches(tournament); track match.id) {
+                        <div class="match-item" [class.completed]="match.completed">
+                            <div class="match-header">
+                                @if (match.groupId !== undefined) {
+                                <span class="group-label">Grupa {{ match.groupId + 1 }}</span>
+                                } @else {
+                                <span class="round-label">{{ match.round }}</span>
+                                }
+                            </div>
+                            <div class="match-players">
+                                <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                    {{ match.player1.name }}
+                                </div>
+                                <div class="match-score">
+                                    {{ match.completed ? match.player1Score + ' : ' + match.player2Score : 'vs' }}
+                                </div>
+                                <div class="player second" [class.winner]="isWinner(match, match.player2)">
+                                    {{ match.player2.name }}
+                                </div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </mat-tab>
+
+                <!-- Groups Tab -->
+                <mat-tab label="Grupy">
+                    @for (group of tournament.groups; track group.id) {
+                    <div class="group-section">
+                        <h4>Grupa {{ group.id + 1 }}</h4>
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th>Miejsce</th>
+                                    <th>Gracz</th>
+                                    <th>Mecze</th>
+                                    <th>Wygrane</th>
+                                    <th>Przegrane</th>
+                                    <th>Punkty</th>
+                                    <th>Legi</th>
+                                    <th>Bilans</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (standing of getGroupStandings(group); track standing.player.id) {
+                                <tr [class.first-place]="standing.position === 1"
+                                    [class.second-place]="standing.position === 2">
+                                    <td>{{ standing.position }}</td>
+                                    <td class="player-name">{{ standing.player.name }}</td>
+                                    <td>{{ standing.matches }}</td>
+                                    <td>{{ standing.wins }}</td>
+                                    <td>{{ standing.losses }}</td>
+                                    <td class="points">{{ standing.points }}</td>
+                                    <td>{{ standing.legsWon }}:{{ standing.legsConceded }}</td>
+                                    <td class="balance">{{ standing.legDifference }}</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div class="matches-list">
+                            @for (match of group.matches; track match.id) {
+                            <div class="match-item" [class.completed]="match.completed">
+                                <div class="match-header">
+                                    <span class="round-label">{{ match.round }}</span>
+                                </div>
+                                <div class="match-players">
+                                    <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                        {{ match.player1.name }}
+                                    </div>
+                                    <div class="match-score">
+                                        {{ match.completed ? match.player1Score + ' : ' + match.player2Score : 'vs' }}
+                                    </div>
+                                    <div class="player second" [class.winner]="isWinner(match, match.player2)">
+                                        {{ match.player2.name }}
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                </mat-tab>
+
+                <!-- Knockout Tab -->
+                @if (tournament.knockoutStageStarted) {
+                <mat-tab label="Drabinka">
+                    <div class="knockout-section">
+                        @for (round of getKnockoutRounds(tournament); track round) {
+                        <div class="round-section">
+                            <h4>{{ round }}</h4>
+                            @for (match of getMatchesByRound(tournament, round); track match.id) {
+                            <div class="match-item" [class.completed]="match.completed">
+                                <div class="match-players">
+                                    <div class="player" [class.winner]="isWinner(match, match.player1)">
+                                        {{ match.player1.name }}
+                                    </div>
+                                    <div class="match-score">
+                                        {{ match.completed ? match.player1Score + ' : ' + match.player2Score : 'vs' }}
+                                    </div>
+                                    <div class="player" [class.winner]="isWinner(match, match.player2)">
+                                        {{ match.player2.name }}
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+                </mat-tab>
+                }
+            </mat-tab-group>
+        </mat-expansion-panel>
+        }
+    </mat-accordion>
+    }
+</div>

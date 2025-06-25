@@ -10,269 +10,8 @@ import { interval, Subscription } from 'rxjs';
     selector: 'app-live-tournaments',
     standalone: true,
     imports: [CommonModule, MatTabsModule, MatExpansionModule],
-    template: `
-      <div class="live-container">
-        <h2>Live Tournaments</h2>
-        
-        @if (incompleteTournaments.length === 0) {
-          <div class="no-tournaments">
-            No active tournaments at the moment
-          </div>
-        } @else {
-          <mat-accordion [multi]="true">
-            @for (tournament of incompleteTournaments; track tournament.id) {
-              <mat-expansion-panel [expanded]="true">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    {{ tournament.name }}
-                  </mat-panel-title>
-                  <mat-panel-description>
-                    {{ tournament.date | date:'medium' }}
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-                
-                <mat-tab-group>
-                  <!-- All Matches Tab -->
-                  <mat-tab label="Wszystkie mecze">
-                    <div class="matches-list">
-                      @for (match of getAllMatches(tournament); track match.id) {
-                        <div class="match-item" [class.completed]="match.completed">
-                          <div class="match-header">
-                            @if (match.groupId !== undefined) {
-                              <span class="group-label">Grupa {{ match.groupId + 1 }}</span>
-                            } @else {
-                              <span class="round-label">{{ match.round }}</span>
-                            }
-                          </div>
-                          <div class="match-players">
-                            <div class="player" [class.winner]="isWinner(match, match.player1)">
-                              {{ match.player1.name }}
-                            </div>
-                            <div class="match-score">
-                              {{ match.completed ? match.player1Score + ' : ' + match.player2Score : 'vs' }}
-                            </div>
-                            <div class="player second" [class.winner]="isWinner(match, match.player2)">
-                              {{ match.player2.name }}
-                            </div>
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  </mat-tab>
-  
-                  <!-- Groups Tab -->
-                  <mat-tab label="Groups">
-                    @for (group of tournament.groups; track group.id) {
-                      <div class="group-section">
-                        <h4>Grupa {{ group.id + 1 }}</h4>
-                        <table class="standings-table">
-                          <thead>
-                            <tr>
-                              <th>Miejsce</th>
-                              <th>Gracz</th>
-                              <th>Mecze</th>
-                              <th>Wygrane</th>
-                              <th>Przegrane</th>
-                              <th>Punkty</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            @for (standing of getGroupStandings(group); track standing.player.id) {
-                              <tr>
-                                <td>{{ standing.position }}</td>
-                                <td>{{ standing.player.name }}</td>
-                                <td>{{ standing.matches }}</td>
-                                <td>{{ standing.wins }}</td>
-                                <td>{{ standing.losses }}</td>
-                                <td>{{ standing.points }}</td>
-                              </tr>
-                            }
-                          </tbody>
-                        </table>
-                        <div class="matches-list">
-                        @for (match of group.matches; track match.id) {
-                            <div class="match-item" [class.completed]="match.completed">
-                            <div class="match-header">
-                                @if (match.groupId !== undefined) {
-                                <span class="group-label">Grupa {{ match.groupId + 1 }}</span>
-                                } @else {
-                                <span class="round-label">{{ match.round }}</span>
-                                }
-                            </div>
-                            <div class="match-players">
-                                <div class="player" [class.winner]="isWinner(match, match.player1)">
-                                {{ match.player1.name }}
-                                </div>
-                                <div class="match-score">
-                                {{ match.completed ? match.player1Score + ' : ' + match.player2Score : 'vs' }}
-                                </div>
-                                <div class="player" [class.winner]="isWinner(match, match.player2)">
-                                {{ match.player2.name }}
-                                </div>
-                            </div>
-                            </div>
-                        }
-                    </div>
-                      </div>
-                    }
-                  </mat-tab>
-  
-                  <!-- Knockout Tab -->
-                  @if (tournament.knockoutStageStarted) {
-                    <mat-tab label="Drabinka">
-                      <div class="knockout-section">
-                        @for (round of getKnockoutRounds(tournament); track round) {
-                          <div class="round-section">
-                            <h4>{{ round }}</h4>
-                            @for (match of getMatchesByRound(tournament, round); track match.id) {
-                              <div class="match-item" [class.completed]="match.completed">
-                                <div class="match-players">
-                                  <div class="player" [class.winner]="isWinner(match, match.player1)">
-                                    {{ match.player1.name }}
-                                  </div>
-                                  <div class="match-score">
-                                    {{ match.completed ? match.player1Score + ' : ' + match.player2Score : 'vs' }}
-                                  </div>
-                                  <div class="player" [class.winner]="isWinner(match, match.player2)">
-                                    {{ match.player2.name }}
-                                  </div>
-                                </div>
-                              </div>
-                            }
-                          </div>
-                        }
-                      </div>
-                    </mat-tab>
-                  }
-                </mat-tab-group>
-              </mat-expansion-panel>
-            }
-          </mat-accordion>
-        }
-      </div>
-    `,
-    styles: [`
-      .live-container {
-        padding: 20px;
-      }
-  
-      .no-tournaments {
-        text-align: center;
-        padding: 40px;
-        color: #666;
-        font-size: 1.2em;
-      }
-  
-      .matches-list {
-        padding: 20px;
-      }
-  
-      .match-item {
-        border: 1px solid #eee;
-        border-radius: 6px;
-        margin-bottom: 10px;
-        overflow: hidden;
-      }
-  
-      .match-item.completed {
-        border-color: #28a745;
-      }
-  
-      .match-header {
-        background: #f8f9fa;
-        padding: 8px 12px;
-        border-bottom: 1px solid #eee;
-      }
-  
-      .match-players {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        gap: 10px;
-        padding: 12px;
-        align-items: center;
-      }
-  
-      .player {
-        padding: 8px;
-        text-align: right;
-      }
-      .second {
-        text-align: left !important;
-      }
-  
-      .player.winner {
-        font-weight: bold;
-        color: #28a745;
-      }
-  
-      .match-score {
-        font-weight: 500;
-        color: #2c3e50;
-        text-align: center;
-        width: max-content;
-        min-width: 80px;
-      }
-  
-      .group-section {
-        padding: 20px;
-      }
-  
-      .standings-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-  
-      .standings-table th,
-      .standings-table td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-      }
-  
-      .standings-table th {
-        background: #f8f9fa;
-        font-weight: 600;
-      }
-  
-      .knockout-section {
-        padding: 20px;
-      }
-  
-      .round-section {
-        margin-bottom: 30px;
-      }
-  
-      .round-section h4 {
-        margin-bottom: 15px;
-        color: #2c3e50;
-      }
-  
-      :host ::ng-deep {
-        .mat-expansion-panel {
-          margin-bottom: 16px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-  
-        .mat-expansion-panel-header {
-          padding: 20px;
-        }
-  
-        .mat-expansion-panel-header-title {
-          color: #2c3e50;
-          font-weight: 500;
-        }
-  
-        .mat-expansion-panel-header-description {
-          color: #666;
-        }
-  
-        .mat-tab-body-wrapper {
-          padding: 20px 0;
-        }
-      }
-    `]
+    templateUrl: './live-tournaments.component.html',
+    styleUrls: ['./live-tournaments.component.scss'],
   })
   export class LiveTournamentsComponent implements OnInit, OnDestroy {
     incompleteTournaments: Tournament[] = [];
@@ -322,11 +61,85 @@ import { interval, Subscription } from 'rxjs';
     }
   
     getGroupStandings(group: any) {
-      return this.tournamentService.getGroupStandings(group)
-        .map((standing, index) => ({
-          ...standing,
-          position: index + 1
-        }));
+      const standings = group.players.map((player: any) => {
+        const matches = group.matches.filter(
+          (m: any) =>
+            m.completed &&
+            (m.player1.id === player.id || m.player2.id === player.id)
+        );
+
+        let wins = 0;
+        let legsWon = 0;
+        let legsConceded = 0;
+
+        matches.forEach((match: any) => {
+          if (match.player1.id === player.id) {
+            if (match.player1Score! > match.player2Score!) wins++;
+            legsWon += match.player1Score!;
+            legsConceded += match.player2Score!;
+          } else {
+            if (match.player2Score! > match.player1Score!) wins++;
+            legsWon += match.player2Score!;
+            legsConceded += match.player1Score!;
+          }
+        });
+
+        return {
+          player,
+          matches: matches.length,
+          wins,
+          losses: matches.length - wins,
+          points: wins * 2,
+          legsWon,
+          legsConceded,
+          legDifference: legsWon - legsConceded
+        };
+      });
+
+      // Sort standings with correct priority order
+      const sortedStandings = standings.sort((a: any, b: any) => {
+        // 1. First by points (highest first)
+        if (a.points !== b.points) {
+          return b.points - a.points;
+        }
+
+        // 2. Then by leg difference/balance (highest first) when points are equal
+        if (a.legDifference !== b.legDifference) {
+          return b.legDifference - a.legDifference;
+        }
+
+        // 3. Finally by head-to-head when both points and balance are equal
+        if (a.points === b.points && a.legDifference === b.legDifference) {
+          const headToHeadMatch = group.matches.find((m: any) =>
+            m.completed &&
+            ((m.player1.id === a.player.id && m.player2.id === b.player.id) ||
+             (m.player2.id === a.player.id && m.player1.id === b.player.id))
+          );
+
+          if (headToHeadMatch) {
+            // Determine who won the head-to-head match
+            let aWonHeadToHead = false;
+            if (headToHeadMatch.player1.id === a.player.id) {
+              aWonHeadToHead = headToHeadMatch.player1Score! > headToHeadMatch.player2Score!;
+            } else {
+              aWonHeadToHead = headToHeadMatch.player2Score! > headToHeadMatch.player1Score!;
+            }
+            
+            // If a won head-to-head, a should be ranked higher (return -1)
+            // If b won head-to-head, b should be ranked higher (return 1)
+            return aWonHeadToHead ? -1 : 1;
+          }
+        }
+
+        // If all else is equal, maintain current order
+        return 0;
+      });
+
+      // Add position to each standing
+      return sortedStandings.map((standing: any, index: number) => ({
+        ...standing,
+        position: index + 1
+      }));
     }
   
     getKnockoutRounds(tournament: Tournament): string[] {

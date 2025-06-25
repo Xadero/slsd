@@ -1,0 +1,161 @@
+.live-container {
+    padding: 20px;
+}
+
+.no-tournaments {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 1.2em;
+}
+
+.matches-list {
+    padding: 20px;
+}
+
+.match-item {
+    border: 1px solid #eee;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.match-item.completed {
+    border-color: #28a745;
+}
+
+.match-header {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.match-players {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    padding: 12px;
+    align-items: center;
+}
+
+.player {
+    padding: 8px;
+    text-align: right;
+}
+
+.second {
+    text-align: left !important;
+}
+
+.player.winner {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.match-score {
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: center;
+    width: max-content;
+    min-width: 80px;
+}
+
+.group-section {
+    padding: 20px;
+}
+
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.standings-table th,
+.standings-table td {
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.standings-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #ddd;
+}
+
+.standings-table .player-name {
+    text-align: left;
+    font-weight: 500;
+}
+
+.standings-table .points {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.standings-table .balance {
+    font-weight: 500;
+}
+
+.standings-table tr.first-place {
+    background-color: #fff3cd;
+}
+
+.standings-table tr.second-place {
+    background-color: #fff3cd;
+}
+
+.standings-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.standings-table tr.first-place:hover {
+    background-color: #ffeaa7;
+}
+
+.standings-table tr.second-place:hover {
+    background-color: #ffeaa7;
+}
+
+.knockout-section {
+    padding: 20px;
+}
+
+.round-section {
+    margin-bottom: 30px;
+}
+
+.round-section h4 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+:host ::ng-deep {
+    .mat-expansion-panel {
+        margin-bottom: 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .mat-expansion-panel-header {
+        padding: 20px;
+    }
+
+    .mat-expansion-panel-header-title {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .mat-expansion-panel-header-description {
+        color: #666;
+    }
+
+    .mat-tab-body-wrapper {
+        padding: 20px 0;
+    }
+}

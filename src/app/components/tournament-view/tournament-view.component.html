@@ -1,4 +1,4 @@
-@if (!tournament && isAdminUser()) {
+@if (!tournament || !isAdminUser()) {
 <div class="create-tournament">
     <h2>Create New Tournament</h2>
     <div class="form-group">
@@ -10,7 +10,7 @@
     <div class="form-group">
         <label>Tournament Series:</label>
         <div class="series-selection">
-            <select [(ngModel)]="selectedSeriesId" class="form-input">
+            <select [(ngModel)]="selectedSeriesId" (ngModelChange)="onSeriesChange()" class="form-input">
                 <option value="">-- Select Series --</option>
                 <option *ngFor="let series of tournamentSeries" [value]="series.id">
                     {{ series.name }}
@@ -42,7 +42,9 @@
                 <div *ngFor="let player of availablePlayers" class="player-card"
                     [class.selected]="isPlayerSelected(player)" (click)="togglePlayer(player)">
                     <span class="player-name">{{ player.name }}</span>
-                    <span class="player-points">Points: {{ player.totalPoints }}</span>
+                    <span class="player-points" *ngIf="selectedSeriesId">
+                        Points: {{ getPlayerSeriesPoints(player) }}
+                    </span>
                 </div>
             </div>
         </div>

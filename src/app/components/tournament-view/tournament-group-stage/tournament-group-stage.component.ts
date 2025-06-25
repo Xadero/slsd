@@ -312,21 +312,54 @@ export class GroupStageComponent implements OnInit {
   getPlayerPlace(group: Group, player: Player): number {
     const standings = group.players.map((p) => {
       const points = this.getPlayerPoints(group, p);
-      const balance = this.displayLegBalance(group, p, true);
-      const headToHead = this.getHeadToHeadResult(group, p, points);
-      return { player: p, points, balance, headToHead };
+      const balance = this.getPlayerBalance(group, p);
+      const legDifference = balance.scored - balance.conceded;
+      
+      return { 
+        player: p, 
+        points, 
+        legDifference,
+        scored: balance.scored,
+        conceded: balance.conceded
+      };
     });
 
+    // Sort standings with correct priority order
     standings.sort((a, b) => {
+      // 1. First by points (highest first)
       if (a.points !== b.points) {
         return b.points - a.points;
       }
-      if (a.balance !== b.balance) {
-        return parseInt(b.balance.toString()) - parseInt(a.balance.toString());
+
+      // 2. Then by leg difference/balance (highest first) when points are equal
+      if (a.legDifference !== b.legDifference) {
+        return b.legDifference - a.legDifference;
       }
-      if (a.headToHead !== b.headToHead) {
-        return b.headToHead - a.headToHead;
+
+      // 3. Finally by head-to-head when both points and balance are equal
+      if (a.points === b.points && a.legDifference === b.legDifference) {
+        const headToHeadMatch = group.matches.find((m) =>
+          m.completed &&
+          ((m.player1.id === a.player.id && m.player2.id === b.player.id) ||
+           (m.player2.id === a.player.id && m.player1.id === b.player.id))
+        );
+
+        if (headToHeadMatch) {
+          // Determine who won the head-to-head match
+          let aWonHeadToHead = false;
+          if (headToHeadMatch.player1.id === a.player.id) {
+            aWonHeadToHead = headToHeadMatch.player1Score! > headToHeadMatch.player2Score!;
+          } else {
+            aWonHeadToHead = headToHeadMatch.player2Score! > headToHeadMatch.player1Score!;
+          }
+          
+          // If a won head-to-head, a should be ranked higher (return -1)
+          // If b won head-to-head, b should be ranked higher (return 1)
+          return aWonHeadToHead ? -1 : 1;
+        }
       }
+
+      // If all else is equal, maintain current order
       return 0;
     });
 

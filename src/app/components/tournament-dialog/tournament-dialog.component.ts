@@ -185,7 +185,6 @@ export class TournamentDialogComponent {
       total171s,
       highestFinish,
       bestLeg,
-      averageFinish: finishCount > 0 ? totalFinishes / finishCount : 0,
     };
   }
 }

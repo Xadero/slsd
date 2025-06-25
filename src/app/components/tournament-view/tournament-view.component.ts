@@ -32,6 +32,7 @@ export class TournamentViewComponent implements OnInit {
   tournament: Tournament | null = null;
 
   playerRankings: PlayerRanking[] = [];
+  seriesPlayerRankings: PlayerRanking[] = [];
   tournamentSeries: TournamentSeries[] = [];
   newTournamentName: string = "";
   newPlayerName: string = "";
@@ -59,6 +60,41 @@ export class TournamentViewComponent implements OnInit {
     this.tournamentService
       .getTournamentSeries()
       .subscribe((series) => (this.tournamentSeries = series));
+  }
+
+  onSeriesChange() {
+    if (this.selectedSeriesId) {
+      // Load series-specific rankings
+      this.tournamentService.getSeriesRankings(this.selectedSeriesId).subscribe((rankings) => {
+        this.seriesPlayerRankings = rankings;
+        // Update available players with series points and sort by points (descending)
+        this.availablePlayers = this.playerRankings.map((r) => {
+          const seriesRanking = this.seriesPlayerRankings.find(sr => sr.player.id === r.player.id);
+          return {
+            id: r.player.id,
+            name: r.player.name,
+            totalPoints: seriesRanking ? seriesRanking.totalPoints : 0,
+          };
+        }).sort((a, b) => b.totalPoints - a.totalPoints); // Sort by points descending
+      });
+    } else {
+      // Reset to global rankings (already sorted)
+      this.seriesPlayerRankings = [];
+      this.availablePlayers = this.playerRankings.map((r) => ({
+        id: r.player.id,
+        name: r.player.name,
+        totalPoints: r.totalPoints,
+      }));
+    }
+  }
+
+  getPlayerSeriesPoints(player: Player): number {
+    if (!this.selectedSeriesId) {
+      return 0;
+    }
+    
+    const seriesRanking = this.seriesPlayerRankings.find(sr => sr.player.id === player.id);
+    return seriesRanking ? seriesRanking.totalPoints : 0;
   }
 
   async createNewSeries() {

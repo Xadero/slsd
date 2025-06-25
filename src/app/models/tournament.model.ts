@@ -99,5 +99,4 @@ export interface PlayerTournamentStats {
   total171s: number;
   highestFinish: number;
   bestLeg: number;
-  averageFinish: number;
 }

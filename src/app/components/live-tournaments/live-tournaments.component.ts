@@ -117,7 +117,6 @@ import { interval, Subscription } from 'rxjs';
           );
 
           if (headToHeadMatch) {
-            // Determine who won the head-to-head match
             let aWonHeadToHead = false;
             if (headToHeadMatch.player1.id === a.player.id) {
               aWonHeadToHead = headToHeadMatch.player1Score! > headToHeadMatch.player2Score!;

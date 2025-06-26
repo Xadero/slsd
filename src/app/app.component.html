@@ -26,18 +26,19 @@
 <main class="main-content">
     <div class="app-container">
         @if(isLiveSelected()) {
-        <app-live-tournaments></app-live-tournaments>
+            <app-live-tournaments></app-live-tournaments>
         }
         @else {
-        @if (selectedTournament(); as tournament) {
-        <app-tournament-details [tournament]="tournament"></app-tournament-details>
-        } @else {
-        @if (selectedSeries(); as series) {
-        <app-series-view [series]="series"></app-series-view>
-        } @else {
-        <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
-        }
-        }
+            @if (selectedTournament(); as tournament) {
+                <app-tournament-details [tournament]="tournament"></app-tournament-details>
+            } @else {
+                @if (selectedSeries(); as series) {
+                    <app-series-view [series]="series"></app-series-view>
+                } @else {
+                    @if(isAdmin) {
+                        <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
+                    }
+                }
         }
     </div>
 </main>

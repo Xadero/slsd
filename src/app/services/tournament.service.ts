@@ -541,10 +541,10 @@ export class TournamentService {
     const pairings: [number, number][] = [
       [0, 15],
       [5, 10],
-      [3, 12],
       [6, 9],
-      [7, 8],
+      [3, 12],
       [2, 13],
+      [7, 8],
       [4, 11],
       [1, 14],
     ];

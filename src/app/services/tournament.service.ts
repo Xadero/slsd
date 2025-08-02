@@ -541,12 +541,12 @@ export class TournamentService {
     const pairings: [number, number][] = [
       [0, 15],
       [5, 10],
-      [1, 14],
-      [7, 8],
-      [6, 9],
-      [2, 13],
       [3, 12],
+      [6, 9],
+      [7, 8],
+      [2, 13],
       [4, 11],
+      [1, 14],
     ];
 
     pairings.forEach(([seed1, seed2]) => {

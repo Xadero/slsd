@@ -540,13 +540,13 @@ export class TournamentService {
     // Create Round of 16 matches with seeded pairings
     const pairings: [number, number][] = [
       [0, 15],
-      [7, 8],
-      [3, 12],
-      [4, 11],
+      [5, 10],
       [1, 14],
+      [7, 8],
       [6, 9],
       [2, 13],
-      [5, 10],
+      [3, 12],
+      [4, 11],
     ];
 
     pairings.forEach(([seed1, seed2]) => {

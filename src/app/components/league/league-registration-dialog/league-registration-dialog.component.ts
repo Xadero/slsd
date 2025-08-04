@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DialogRef } from '@angular/cdk/dialog';
 import { SupabaseService } from '../../../services/supabase.service';
+import { LeagueService } from '../../../services/league.service';
 
 @Component({
   selector: 'app-league-registration-dialog',
@@ -25,14 +26,13 @@ export class LeagueRegistrationDialogComponent {
 
   constructor(
     private dialogRef: DialogRef<LeagueRegistrationDialogComponent>,
-    private supabaseService: SupabaseService
+    private leagueService: LeagueService
   ) {}
 
   formatPhoneNumber(event: Event) {
     const input = event.target as HTMLInputElement;
-    let value = input.value.replace(/\D/g, ''); // Remove non-digits
+    let value = input.value.replace(/\D/g, '');
     
-    // Limit to 9 digits
     if (value.length > 9) {
       value = value.substring(0, 9);
     }
@@ -46,7 +46,7 @@ export class LeagueRegistrationDialogComponent {
     
     input.value = value;
     this.formData.phoneNumber = value;
-    this.phoneError = ''; // Clear error when user types
+    this.phoneError = '';
   }
 
   async onSubmit(form: NgForm) {
@@ -56,12 +56,7 @@ export class LeagueRegistrationDialogComponent {
     this.phoneError = '';
 
     try {
-      // Check if phone number already exists
-      const { data: existingRegistration } = await this.supabaseService.supabase
-        .from('league_registrations')
-        .select('id')
-        .eq('phone_number', this.formData.phoneNumber)
-        .single();
+      const { data: existingRegistration } = await this.leagueService.checkIfPlayerIsRegistered(this.formData.phoneNumber);
 
       if (existingRegistration) {
         this.phoneError = 'Ten numer telefonu jest już zarejestrowany w lidze';
@@ -69,14 +64,7 @@ export class LeagueRegistrationDialogComponent {
         return;
       }
 
-      // Register new user
-      const { error } = await this.supabaseService.supabase
-        .from('league_registrations')
-        .insert([{
-          name: this.formData.name.trim(),
-          surname: this.formData.surname.trim(),
-          phone_number: this.formData.phoneNumber
-        }]);
+      const { error } = await this.leagueService.registerNewPlayerToLeague(this.formData);
 
       if (error) {
         throw error;
@@ -84,13 +72,11 @@ export class LeagueRegistrationDialogComponent {
 
       this.successMessage = 'Rejestracja przebiegła pomyślnie!';
       
-      // Close dialog after 2 seconds
       setTimeout(() => {
         this.dialogRef.close();
       }, 2000);
 
     } catch (error: any) {
-      console.error('Registration error:', error);
       this.phoneError = 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.';
     } finally {
       this.isSubmitting = false;

@@ -163,7 +163,7 @@ export class TournamentService {
         quarterFinalMatch.player2Score = undefined;
       }
     } else if (currentRound === 'Quarter-Finals') {
-      const semiFinalIndex = Math.floor(currentMatchIndex / 2);
+      const semiFinalIndex = currentMatchIndex > 8 ? Math.floor(currentMatchIndex / 2) - 4: Math.floor(currentMatchIndex / 2);
       const semiFinalMatch = matches.find(m =>
           m.round === 'Semi-Finals' &&
           matches.filter(sm => sm.round === 'Semi-Finals' && sm.id < m.id).length === semiFinalIndex
@@ -540,13 +540,13 @@ export class TournamentService {
     // Create Round of 16 matches with seeded pairings
     const pairings: [number, number][] = [
       [0, 15],
-      [7, 8],
+      [5, 10],
+      [6, 9],
       [3, 12],
+      [2, 13],
+      [7, 8],
       [4, 11],
       [1, 14],
-      [6, 9],
-      [2, 13],
-      [5, 10],
     ];
 
     pairings.forEach(([seed1, seed2]) => {

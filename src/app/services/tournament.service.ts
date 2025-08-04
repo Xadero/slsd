@@ -365,25 +365,65 @@ export class TournamentService {
 
   public createGroupMatches(players: Player[], groupId: number): Match[] {
     const matches: Match[] = [];
-    const matchOrder = [
-      [0, 5],
-      [4, 1],
-      [3, 2],
-      [4, 0],
-      [5, 2],
-      [1, 3],
-      [2, 4],
-      [3, 5],
-      [0, 2],
-      [5, 4],
-      [2, 1],
-      [3, 0],
-      [1, 5],
-      [4, 3],
-      [0, 1],
-    ];
 
-    matchOrder.forEach(([p1Index, p2Index], matchIndex) => {
+    let matchOrder;
+    switch (players.length) {
+      case 2:
+        matchOrder = [ [0, 1] ];
+        break;
+      case 3:
+        matchOrder = [
+          [0, 1],
+          [1, 2],
+          [2, 0]
+        ];
+        break;
+      case 4:
+        matchOrder = [
+          [3, 0],
+          [1, 2],
+          [3, 2],
+          [0, 1],
+          [3, 1],
+          [2, 0]
+        ]
+        break;
+      case 5:
+        matchOrder = [
+          [0, 1],
+          [2, 3],
+          [0, 2],
+          [1, 4],
+          [0, 4],
+          [1, 3],
+          [0, 3],
+          [2, 4],
+          [1, 2],
+          [3, 4]
+        ];
+        break;
+      case 6:
+        matchOrder = [
+          [0, 5],
+          [4, 1],
+          [3, 2],
+          [4, 0],
+          [5, 2],
+          [1, 3],
+          [2, 4],
+          [3, 5],
+          [0, 2],
+          [5, 4],
+          [2, 1],
+          [3, 0],
+          [1, 5],
+          [4, 3],
+          [0, 1]
+        ];
+        break;
+    }
+
+    matchOrder?.forEach(([p1Index, p2Index], matchIndex) => {
       if (p1Index >= players.length || p2Index >= players.length) {
         return;
       }
@@ -881,7 +921,13 @@ export class TournamentService {
         wonLegsPercentage: stats.legsPlayed > 0 ? (stats.legsWon / stats.legsPlayed) * 100 : 0,
         wonMatchesPercentage: stats.matchesPlayed > 0 ? (stats.matchesWon / stats.matchesPlayed) * 100 : 0
       }))
-      .sort((a, b) => b.totalPoints - a.totalPoints);
+      .sort((a, b) => {
+        const pointsDifference = b.totalPoints - a.totalPoints;
+        if (pointsDifference === 0) {
+          return b.legDifference - a.legDifference;
+        }
+        return pointsDifference;
+      });
   }
   
   setCurrentTournament(tournament: Tournament | null): void {

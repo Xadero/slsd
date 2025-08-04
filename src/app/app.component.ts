@@ -12,6 +12,7 @@ import { Dialog } from "@angular/cdk/dialog";
 import { Tournament, TournamentSeries } from "./models/tournament.model";
 import { IncompleteTournamentsDialogComponent } from "./components/incomplete-tournaments-dialog/incomplete-tournaments-dialog.component";
 import { LiveTournamentsComponent } from "./components/live-tournaments/live-tournaments.component";
+import { LeagueRegistrationDialogComponent } from "./components/league/league-registration-dialog/league-registration-dialog.component";
 
 @Component({
   selector: "app-root",
@@ -178,5 +179,12 @@ export class AppComponent implements OnDestroy {
     this.isLiveSelected.set(true);
     this.selectedSeries.set(undefined);
     this.selectedTournament.set(undefined);
+  }
+
+  openLeagueRegistration() {
+    this.dialog.open(LeagueRegistrationDialogComponent, {
+      width: '500px',
+      disableClose: false
+    });
   }
 }

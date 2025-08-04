@@ -1047,14 +1047,6 @@ export class TournamentService {
         }
       }
 
-      // const semiFinalists = tournament.knockoutMatches
-      //   .filter((m) => m.round === "Semi-Finals" && m.completed)
-      //   .flatMap((m) => [m.player1.id, m.player2.id]);
-
-      // if (semiFinalists.includes(player.id)) {
-      //   return 24;
-      // }
-
       const quarterFinalists = tournament.knockoutMatches
         .filter((m) => m.round === "Quarter-Finals" && m.completed)
         .flatMap((m) => [m.player1.id, m.player2.id]);
@@ -1068,7 +1060,7 @@ export class TournamentService {
         .flatMap((m) => [m.player1.id, m.player2.id]);
 
       if (roundOf16Players.includes(player.id)) {
-        return 16;
+        return 14;
       }
     }
 
@@ -1078,11 +1070,20 @@ export class TournamentService {
         (s) => s.player.id === player.id
       );
 
-      if (playerPosition === 2) {
-        points = 14;
-      } else if (playerPosition >= 3) {
-        points = 8;
+
+      if (tournament.groups.length === 8) {
+        if (playerPosition > 1) {
+          points = 8;
+        }
       }
+      else {
+        if (playerPosition === 2) {
+          points = 14;
+        } else if (playerPosition >= 3) {
+          points = 8;
+        }
+      }
+
     });
 
     return points;

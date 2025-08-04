@@ -1,80 +1,60 @@
 <div class="registration-dialog">
     <h2>Rejestracja do ligi</h2>
-    
+
     <form #registrationForm="ngForm" (ngSubmit)="onSubmit(registrationForm)">
-      <div class="form-group">
-        <label for="name">Imię *</label>
-        <input 
-          type="text" 
-          id="name"
-          name="name"
-          [(ngModel)]="formData.name"
-          required
-          #nameField="ngModel"
-          class="form-input"
-          [class.error]="nameField.invalid && nameField.touched"
-        />
-        <div class="error-message" *ngIf="nameField.invalid && nameField.touched">
-          Imię jest wymagane
+        <div class="form-group">
+            <label for="name">Imię *</label>
+            <input type="text" id="name" name="name" [(ngModel)]="formData.name" required #nameField="ngModel"
+                class="form-input" [class.error]="nameField.invalid && nameField.touched" />
+            <div class="error-message" *ngIf="nameField.invalid && nameField.touched">
+                Imię jest wymagane
+            </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="surname">Nazwisko *</label>
-        <input 
-          type="text" 
-          id="surname"
-          name="surname"
-          [(ngModel)]="formData.surname"
-          required
-          #surnameField="ngModel"
-          class="form-input"
-          [class.error]="surnameField.invalid && surnameField.touched"
-        />
-        <div class="error-message" *ngIf="surnameField.invalid && surnameField.touched">
-          Nazwisko jest wymagane
+        <div class="form-group">
+            <label for="surname">Nazwisko *</label>
+            <input type="text" id="surname" name="surname" [(ngModel)]="formData.surname" required
+                #surnameField="ngModel" class="form-input"
+                [class.error]="surnameField.invalid && surnameField.touched" />
+            <div class="error-message" *ngIf="surnameField.invalid && surnameField.touched">
+                Nazwisko jest wymagane
+            </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="phone">Numer telefonu *</label>
-        <input 
-          type="text" 
-          id="phone"
-          name="phone"
-          [(ngModel)]="formData.phoneNumber"
-          required
-          pattern="[0-9]{3}-[0-9]{3}-[0-9]{3}"
-          placeholder="XXX-XXX-XXX"
-          #phoneField="ngModel"
-          class="form-input"
-          [class.error]="(phoneField.invalid && phoneField.touched) || phoneError"
-          (input)="formatPhoneNumber($event)"
-          maxlength="11"
-        />
-        <div class="error-message" *ngIf="phoneField.invalid && phoneField.touched && !phoneError">
-          Numer telefonu musi być w formacie XXX-XXX-XXX
+        <div class="form-group">
+            <label for="city">Miejscowość *</label>
+            <input type="text" id="city" name="city" [(ngModel)]="formData.city" required #cityField="ngModel"
+                class="form-input" [class.error]="cityField.invalid && surnameField.touched" />
+            <div class="error-message" *ngIf="cityField.invalid && cityField.touched">
+                Miejscowość jest wymagana
+            </div>
         </div>
-        <div class="error-message" *ngIf="phoneError">
-          {{ phoneError }}
-        </div>
-      </div>
 
-      <div class="form-actions">
-        <button type="button" class="btn secondary" (click)="close()">
-          Anuluj
-        </button>
-        <button 
-          type="submit" 
-          class="btn primary" 
-          [disabled]="registrationForm.invalid || isSubmitting"
-        >
-          {{ isSubmitting ? 'Rejestrowanie...' : 'Zarejestruj się' }}
-        </button>
-      </div>
+        <div class="form-group">
+            <label for="phone">Numer telefonu *</label>
+            <input type="text" id="phone" name="phone" [(ngModel)]="formData.phoneNumber" required
+                pattern="[0-9]{3}-[0-9]{3}-[0-9]{3}" placeholder="XXX-XXX-XXX" #phoneField="ngModel" class="form-input"
+                [class.error]="(phoneField.invalid && phoneField.touched) || phoneError"
+                (input)="formatPhoneNumber($event)" maxlength="11" />
+            <div class="error-message" *ngIf="phoneField.invalid && phoneField.touched && !phoneError">
+                Numer telefonu musi być w formacie XXX-XXX-XXX
+            </div>
+            <div class="error-message" *ngIf="phoneError">
+                {{ phoneError }}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn secondary" (click)="close()">
+                Anuluj
+            </button>
+            <button type="submit" class="btn primary" [disabled]="registrationForm.invalid || isSubmitting">
+                {{ isSubmitting ? 'Rejestrowanie...' : 'Zarejestruj się' }}
+            </button>
+        </div>
     </form>
 
     <div class="success-message" *ngIf="successMessage">
-      {{ successMessage }}
+        {{ successMessage }}
     </div>
-  </div>
+</div>

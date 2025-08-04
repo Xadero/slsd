@@ -15,7 +15,8 @@ export class LeagueRegistrationDialogComponent {
   formData = {
     name: '',
     surname: '',
-    phoneNumber: ''
+    phoneNumber: '',
+    city: ''
   };
 
   isSubmitting = false;

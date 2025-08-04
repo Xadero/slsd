@@ -363,7 +363,7 @@ export class TournamentDetailsComponent implements OnInit {
     if (!this.tournament()) return 0;
 
     let points = 0;
-
+    
     if (this.tournament().completed && this.tournament().knockoutStageStarted) {
       const finalMatch = this.tournament().knockoutMatches.find(
         (m) => m.round === "Final" && m.completed
@@ -382,28 +382,30 @@ export class TournamentDetailsComponent implements OnInit {
           finalMatch.player1.id === player.id ||
           finalMatch.player2.id === player.id
         ) {
-          return 34;
+          return 32;
         }
       }
 
-      const thirdPlace = this.tournament().knockoutMatches.find(
-        (m) => m.round === "Third Place" && m.completed
-      );
-      if (thirdPlace) {
-        if (
-          (thirdPlace.player1.id === player.id &&
-            thirdPlace.player1Score! > thirdPlace.player2Score!) ||
-          (thirdPlace.player2.id === player.id &&
-            thirdPlace.player2Score! > thirdPlace.player1Score!)
-        ) {
-          return 30;
-        }
+      if (this.tournament() && this.tournament().knockoutStageStarted) {
+        const thirdPlaceMatch = this.tournament().knockoutMatches.find(
+          (m) => m.round === "Third-Place" && m.completed
+        );
+        if (thirdPlaceMatch) {
+          if (
+            (thirdPlaceMatch.player1.id === player.id &&
+              thirdPlaceMatch.player1Score! > thirdPlaceMatch.player2Score!) ||
+            (thirdPlaceMatch.player2.id === player.id &&
+              thirdPlaceMatch.player2Score! > thirdPlaceMatch.player1Score!)
+          ) {
+            return 30;
+          }
 
-        if (
-          thirdPlace.player1.id === player.id ||
-          thirdPlace.player2.id === player.id
-        ) {
-          return 28;
+          if (
+            thirdPlaceMatch.player1.id === player.id ||
+            thirdPlaceMatch.player2.id === player.id
+          ) {
+            return 28;
+          }
         }
       }
 
@@ -420,7 +422,7 @@ export class TournamentDetailsComponent implements OnInit {
         .flatMap((m) => [m.player1.id, m.player2.id]);
 
       if (roundOf16Players.includes(player.id)) {
-        return 16;
+        return 14;
       }
     }
 
@@ -430,11 +432,20 @@ export class TournamentDetailsComponent implements OnInit {
         (s) => s.player.id === player.id
       );
 
-      if (playerPosition === 2) {
-        points = 14;
-      } else if (playerPosition >= 3) {
-        points = 8;
+
+      if (this.tournament().groups.length === 8) {
+        if (playerPosition > 1) {
+          points = 8;
+        }
       }
+      else {
+        if (playerPosition === 2) {
+          points = 14;
+        } else if (playerPosition >= 3) {
+          points = 8;
+        }
+      }
+
     });
 
     return points;

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS league_registrations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   surname text NOT NULL,
+  city text NOT NULL,
   phone_number text UNIQUE NOT NULL,
   created_at timestamptz DEFAULT now()
 );

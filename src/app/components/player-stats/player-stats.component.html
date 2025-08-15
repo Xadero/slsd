@@ -1,0 +1,16 @@
+@if (playerStats()) {
+<div class="player-match-stats">
+    @if (playerStats().count180s) {
+    <span>180: {{ playerStats().count180s }}</span>
+    }
+    @if (playerStats().count171s) {
+    <span>171: {{ playerStats().count171s }}</span>
+    }
+    @if (playerStats().highestFinish) {
+    <span>HF: {{ playerStats().highestFinish }}</span>
+    }
+    @if (playerStats().bestLeg) {
+    <span>BL: {{ playerStats().bestLeg }}</span>
+    }
+</div>
+}

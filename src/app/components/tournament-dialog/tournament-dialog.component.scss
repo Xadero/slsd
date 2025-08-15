@@ -60,6 +60,7 @@
     margin-bottom: 15px;
     margin-top: 15px;
     border: 1;
+    font-size: 13px;
 }
 
 .results-table th,
@@ -79,6 +80,7 @@
     font-weight: 500;
     width: 45px;
     max-width: 45px;
+    padding: 0;
 }
 
 .winner {
@@ -146,16 +148,6 @@
     font-size: 1.2em;
     font-weight: 500;
     color: #2c3e50;
-}
-
-.player-match-stats {
-    font-size: 0.8em;
-    color: #666;
-    margin-top: 2px;
-}
-
-.player-match-stats span {
-    margin-right: 8px;
 }
 
 .player-tournament-stats {

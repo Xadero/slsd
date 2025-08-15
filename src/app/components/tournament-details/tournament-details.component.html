@@ -86,30 +86,18 @@
                         <tr *ngFor="let match of group.matches">
                             <td [class.winner]="isWinner(match, match.player1)">
                                 {{ match.player1.name }}
-                                <div *ngIf="match.player1Stats" class="player-match-stats">
-                                    <span *ngIf="match.player1Stats.count180s">180s:
-                                        {{match.player1Stats.count180s}}</span>
-                                    <span *ngIf="match.player1Stats.count171s">171s:
-                                        {{match.player1Stats.count171s}}</span>
-                                    <span *ngIf="match.player1Stats.highestFinish">HF:
-                                        {{match.player1Stats.highestFinish}}</span>
-                                    <span *ngIf="match.player1Stats.bestLeg">BL: {{match.player1Stats.bestLeg}}</span>
-                                </div>
+                                @if (match.player1Stats) {
+                                <app-player-stats [playerStats]="match.player1Stats"></app-player-stats>
+                                }
                             </td>
                             <td class="score">
                                 {{ match.completed ? match.player1Score + ' - ' + match.player2Score : '-' }}
                             </td>
                             <td [class.winner]="isWinner(match, match.player2)">
                                 {{ match.player2.name }}
-                                <div *ngIf="match.player2Stats" class="player-match-stats">
-                                    <span *ngIf="match.player2Stats.count180s">180s:
-                                        {{match.player2Stats.count180s}}</span>
-                                    <span *ngIf="match.player2Stats.count171s">171s:
-                                        {{match.player2Stats.count171s}}</span>
-                                    <span *ngIf="match.player2Stats.highestFinish">HF:
-                                        {{match.player2Stats.highestFinish}}</span>
-                                    <span *ngIf="match.player2Stats.bestLeg">BL: {{match.player2Stats.bestLeg}}</span>
-                                </div>
+                                @if (match.player2Stats) {
+                                <app-player-stats [playerStats]="match.player2Stats"></app-player-stats>
+                                }
                             </td>
                         </tr>
                     </tbody>
@@ -129,12 +117,18 @@
                         <tr *ngFor="let match of getMatchesByRound(round)">
                             <td [class.winner]="isWinner(match, match.player1)">
                                 {{ match.player1.name }}
+                                @if (match.player1Stats) {
+                                <app-player-stats [playerStats]="match.player1Stats"></app-player-stats>
+                                }
                             </td>
                             <td class="score">
                                 {{ match.completed ? match.player1Score + ' - ' + match.player2Score : '-' }}
                             </td>
                             <td [class.winner]="isWinner(match, match.player2)">
                                 {{ match.player2.name }}
+                                @if (match.player2Stats) {
+                                <app-player-stats [playerStats]="match.player2Stats"></app-player-stats>
+                                }
                             </td>
                         </tr>
                     </tbody>
@@ -149,12 +143,18 @@
                         <tr>
                             <td [class.winner]="isWinner(final, final.player1)">
                                 {{ final.player1.name }}
+                                @if (final.player1Stats) {
+                                <app-player-stats [playerStats]="final.player1Stats"></app-player-stats>
+                                }
                             </td>
                             <td class="score">
                                 {{ final.completed ? final.player1Score + ' - ' + final.player2Score : '-' }}
                             </td>
                             <td [class.winner]="isWinner(final, final.player2)">
                                 {{ final.player2.name }}
+                                @if (final.player2Stats) {
+                                <app-player-stats [playerStats]="final.player2Stats"></app-player-stats>
+                                }
                             </td>
                         </tr>
                         }
@@ -168,6 +168,9 @@
                         <tr>
                             <td [class.winner]="isWinner(thirdPlace, thirdPlace.player1)">
                                 {{ thirdPlace.player1.name }}
+                                @if (thirdPlace.player1Stats) {
+                                <app-player-stats [playerStats]="thirdPlace.player1Stats"></app-player-stats>
+                                }
                             </td>
                             <td class="score">
                                 {{ thirdPlace.completed ? thirdPlace.player1Score + ' - ' + thirdPlace.player2Score :
@@ -175,6 +178,9 @@
                             </td>
                             <td [class.winner]="isWinner(thirdPlace, thirdPlace.player2)">
                                 {{ thirdPlace.player2.name }}
+                                @if (thirdPlace.player2Stats) {
+                                <app-player-stats [playerStats]="thirdPlace.player2Stats"></app-player-stats>
+                                }
                             </td>
                         </tr>
                         }

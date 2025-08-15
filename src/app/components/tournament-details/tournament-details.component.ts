@@ -7,11 +7,12 @@ import {
   Player,
 } from "../../models/tournament.model";
 import { MatExpansionModule } from "@angular/material/expansion";
+import { PlayerStatsComponent } from "../player-stats/player-stats.component";
 
 @Component({
   selector: "app-tournament-details",
   standalone: true,
-  imports: [CommonModule, MatExpansionModule],
+  imports: [CommonModule, MatExpansionModule, PlayerStatsComponent],
   templateUrl: "./tournament-details.component.html",
   styleUrls: ["./tournament-details.component.scss"],
 })

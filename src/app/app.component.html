@@ -1,6 +1,7 @@
 <header class="header">
     <div class="header-content">
         <div class="logo">
+            <img src="assets/logo_fsw.png" alt="Logo" width="60" height="60" />
             <h1 (click)="showLastSeries()" style="cursor: pointer">Świebodzińska liga steel darta</h1>
         </div>
         <nav class="navigation">
@@ -26,20 +27,20 @@
 <main class="main-content">
     <div class="app-container">
         @if(isLiveSelected()) {
-            <app-live-tournaments></app-live-tournaments>
+        <app-live-tournaments></app-live-tournaments>
         }
         @else {
-            @if (selectedTournament(); as tournament) {
-                <app-tournament-details [tournament]="tournament"></app-tournament-details>
-            } @else {
-                @if (selectedSeries(); as series) {
-                    <app-series-view [series]="series"></app-series-view>
-                } @else {
-                    @if(isAdmin) {
-                        <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
-                    }
-                }
-            }
+        @if (selectedTournament(); as tournament) {
+        <app-tournament-details [tournament]="tournament"></app-tournament-details>
+        } @else {
+        @if (selectedSeries(); as series) {
+        <app-series-view [series]="series"></app-series-view>
+        } @else {
+        @if(isAdmin) {
+        <app-tournament-view [currentTournament]="currentTournament()" [isAdminUser]="isAdmin"></app-tournament-view>
+        }
+        }
+        }
         }
     </div>
 </main>

@@ -576,8 +576,6 @@ export class TournamentService {
 
   private createRoundOf16Matches(players: Player[]): Match[] {
     const matches: Match[] = [];
-
-    // Create Round of 16 matches with seeded pairings
     const pairings: [number, number][] = [
       [0, 15],
       [5, 10],

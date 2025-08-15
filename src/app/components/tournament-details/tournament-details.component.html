@@ -1,14 +1,66 @@
-<div class="dialog-container">
-    <div class="dialog-header">
-        <h2>{{ tournament.name }}</h2>
-        <button class="close-button" (click)="close()">×</button>
+<div class="tournament-details-container" *ngIf="tournament">
+    <div class="tournament-header">
+        <h1>{{ tournament().name }}</h1>
+        <div class="tournament-meta">
+            <span class="series" *ngIf="tournament().series_name">Cykl: {{ tournament().series_name }}</span>
+            <span class="date">{{ tournament().date | date : "mediumDate" }}</span>
+        </div>
     </div>
 
-    <!-- Group Stage Results -->
+    <!-- Tournament Rankings -->
+    <div class="rankings-container">
+        <div class="table-container">
+            <table class="rankings-table">
+                <thead>
+                    <tr>
+                        <th>Miejsce</th>
+                        <th>Zawodnik</th>
+                        <th>Punkty</th>
+                        <th>180</th>
+                        <th>171</th>
+                        <th>HF</th>
+                        <th>BL</th>
+                        <th>Legi</th>
+                        <th>Bilans legów</th>
+                        <th>Wygranych legów</th>
+                        <th>Mecze</th>
+                        <th>Wygranych meczy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let player of getTournamentRankings(); let i = index"
+                        [ngStyle]="{ 'background-color': i + 1 === 1 ? 'gold' : i + 1 === 2 ? 'silver' : i + 1 === 3 ? '#cd7f32' : 'white' }">
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ player.name }}</td>
+                        <td>{{ getTournamentPoints(player) }}</td>
+                        <td>{{ getPlayerStats(player).total180s }}</td>
+                        <td>{{ getPlayerStats(player).total171s }}</td>
+                        <td>{{ getPlayerStats(player).highestFinish }}</td>
+                        <td>{{ getPlayerStats(player).bestLeg }}</td>
+                        <td>{{ getPlayerStats(player).legsPlayed }}</td>
+                        <td>{{ getPlayerStats(player).legDifference }}</td>
+                        <td>
+                            {{
+                            getPlayerStats(player).wonLegsPercentage | number : "1.1-1"
+                            }}%
+                        </td>
+                        <td>{{ getPlayerStats(player).matchesPlayed }}</td>
+                        <td>
+                            {{
+                            getPlayerStats(player).wonMatchesPercentage
+                            | number : "1.1-1"
+                            }}%
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <div class="section">
         <h3>Faza grupowa</h3>
         <div class="groups-grid">
-            <div *ngFor="let group of tournament.groups" class="group-results">
+            <div *ngFor="let group of this.tournament().groups" class="group-results">
                 <h4>Grupa {{ group.id + 1 }}</h4>
                 <div class="standings">
                     <table class="standings-table">
@@ -67,11 +119,11 @@
     </div>
 
     <!-- Knockout Stage Results -->
-    <div *ngIf="tournament.knockoutStageStarted" class="section">
+    <div *ngIf="this.tournament().knockoutStageStarted" class="section">
         <h3>Faza pucharowa</h3>
         <div class="knockout-results">
             <div *ngFor="let round of ['Round-16','Quarter-Finals', 'Semi-Finals']" class="round-results">
-                <h4>{{ round }}</h4>
+                <h4>{{ translateRoundName(round) }}</h4>
                 <table class="results-table">
                     <tbody>
                         <tr *ngFor="let match of getMatchesByRound(round)">
@@ -141,24 +193,24 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="player-tournament-stats">
-                    <div *ngFor="let player of tournament.participants" class="player-stat-card">
+                    <div *ngFor="let player of this.tournament().participants" class="player-stat-card">
                         <h5>{{ player.name }}</h5>
                         <div class="player-stat-details">
                             <div class="stat-row">
                                 <span>180s:</span>
-                                <span>{{ getPlayerTournamentStats(player).total180s }}</span>
+                                <span>{{ getPlayerStats(player).total180s }}</span>
                             </div>
                             <div class="stat-row">
                                 <span>171s:</span>
-                                <span>{{ getPlayerTournamentStats(player).total171s }}</span>
+                                <span>{{ getPlayerStats(player).total171s }}</span>
                             </div>
                             <div class="stat-row">
                                 <span>Highest Finish:</span>
-                                <span>{{ getPlayerTournamentStats(player).highestFinish }}</span>
+                                <span>{{ getPlayerStats(player).highestFinish }}</span>
                             </div>
                             <div class="stat-row">
                                 <span>Best Leg:</span>
-                                <span>{{ getPlayerTournamentStats(player).bestLeg }}</span>
+                                <span>{{ getPlayerStats(player).bestLeg }}</span>
                             </div>
                         </div>
                     </div>

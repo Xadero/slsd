@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Dialog, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import {
@@ -7,15 +7,17 @@ import {
   PlayerTournamentStats,
   Player,
 } from "../../models/tournament.model";
+import { MatExpansionModule } from "@angular/material/expansion";
 
 @Component({
   selector: "app-tournament-dialog",
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatExpansionModule],
   templateUrl: "./tournament-dialog.component.html",
   styleUrl: "./tournament-dialog.component.scss",
 })
 export class TournamentDialogComponent {
+  readonly panelOpenState = signal(false);
   constructor(
     public dialogRef: DialogRef<void>,
     @Inject(DIALOG_DATA) public tournament: Tournament

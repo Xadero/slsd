@@ -1,44 +1,52 @@
-.dialog-container {
-    background: white;
-    border-radius: 8px;
+.tournament-details-container {
     padding: 20px;
-    max-height: 80vh;
-    overflow-y: auto;
 }
 
-.dialog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.dialog-header h2 {
-    margin: 0;
-    color: #2c3e50;
-}
-
-.close-button {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-}
-
-.close-button:hover {
-    color: #333;
+.tournament-header {
+    margin-bottom: 30px;
+    text-align: center;
 }
 
 .section {
     margin-bottom: 30px;
 }
 
-.section h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
+.tournament-meta {
+    color: #666;
+    font-size: 0.9em;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.rankings-container {
+    margin: 20px 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.rankings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rankings-table th,
+.rankings-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid black;
+}
+
+.rankings-table th {
+    background: #f8f9fa;
+    font-weight: 600;
 }
 
 .groups-grid {

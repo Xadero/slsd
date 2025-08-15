@@ -56,6 +56,7 @@ export interface PlayerStanding {
   wins: number;
   losses: number;
   points: number;
+  legDifference: number;
 }
 
 export interface PlayerRanking {

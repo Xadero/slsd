@@ -26,7 +26,8 @@
                         }
                     },
                     "options": {
-                        "assets": [{
+                        "assets": [
+                            {
                                 "glob": "favicon.ico",
                                 "input": "src/assets",
                                 "output": "/"
@@ -36,7 +37,9 @@
                         "index": "src/index.html",
                         "browser": "src/main.ts",
                         "outputPath": "dist/demo",
-                        "polyfills": ["zone.js"],
+                        "polyfills": [
+                            "zone.js"
+                        ],
                         "scripts": [],
                         "styles": [
                             "@angular/material/prebuilt-themes/azure-blue.css",

@@ -34,12 +34,12 @@
     <!-- Player Selection -->
     <div class="player-selection">
         <h3>Add Players</h3>
-
+        <input type="text" placeholder="Search players..." [(ngModel)]="searchText" class="form-input" />
         <!-- Existing Players -->
         <div class="existing-players">
             <h4>Select Existing Players</h4>
             <div class="players-grid">
-                <div *ngFor="let player of availablePlayers" class="player-card"
+                <div *ngFor="let player of filteredParticipants" class="player-card"
                     [class.selected]="isPlayerSelected(player)" (click)="togglePlayer(player)">
                     <span class="player-name">{{ player.name }}</span>
                     <span class="player-points" *ngIf="selectedSeriesId">

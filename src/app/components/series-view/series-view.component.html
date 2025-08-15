@@ -3,7 +3,6 @@
     <h1>{{ series().name }}</h1>
 
     <div class="rankings-container">
-        <h2>Tabela generalna</h2>
         <div class="table-container">
             <table class="rankings-table">
                 <thead>
@@ -47,7 +46,7 @@
                         </td>
                         <td style="font-weight: bold;">{{ ranking.player.name }}</td>
                         <td *ngFor="let points of ranking.tournamentPoints"
-                            [ngClass]="points === 40 ? 'bg-gold' : points === 32 ? 'bg-silver' : points === 30 ? 'bg-bronze' : ''">
+                            [ngClass]="points === 40 ? 'bg-gold' : points === 34 ? 'bg-silver' : points === 28 ? 'bg-bronze' : ''">
                             {{ !!points ? points : '-' }}
                         </td>
                         <td style="font-weight: bold;">{{ ranking.totalPoints }}</td>

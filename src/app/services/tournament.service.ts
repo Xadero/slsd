@@ -1066,7 +1066,7 @@ export class TournamentService {
           finalMatch.player1.id === player.id ||
           finalMatch.player2.id === player.id
         ) {
-          return 32;
+          return 34;
         }
       }
 
@@ -1081,14 +1081,14 @@ export class TournamentService {
             (thirdPlaceMatch.player2.id === player.id &&
               thirdPlaceMatch.player2Score! > thirdPlaceMatch.player1Score!)
           ) {
-            return 30;
+            return 28;
           }
 
           if (
             thirdPlaceMatch.player1.id === player.id ||
             thirdPlaceMatch.player2.id === player.id
           ) {
-            return 28;
+            return 24;
           }
         }
       }
@@ -1118,18 +1118,21 @@ export class TournamentService {
 
 
       if (tournament.groups.length === 8) {
-        if (playerPosition > 1) {
+        if (playerPosition === 2) {
           points = 8;
+        } else if (playerPosition > 2) {
+          points = 4;
         }
       }
       else {
         if (playerPosition === 2) {
           points = 14;
-        } else if (playerPosition >= 3) {
+        } else if (playerPosition === 3) {
           points = 8;
+        } else if (playerPosition > 3) {
+          points = 4;
         }
       }
-
     });
 
     return points;

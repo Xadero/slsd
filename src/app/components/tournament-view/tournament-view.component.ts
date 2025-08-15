@@ -41,6 +41,7 @@ export class TournamentViewComponent implements OnInit {
   showNewSeriesInput: boolean = false;
   participants: Player[] = [];
   availablePlayers: Player[] = [];
+  searchText: string = '';
 
   constructor(private tournamentService: TournamentService) {}
 
@@ -217,5 +218,12 @@ export class TournamentViewComponent implements OnInit {
     }
 
     this.tournamentService.setCurrentTournament(this.tournament);
+  }
+
+  
+  get filteredParticipants() {
+    return this.availablePlayers.filter(player =>
+      player.name.toLowerCase().includes(this.searchText.toLowerCase())
+    );
   }
 }

@@ -12,6 +12,9 @@
 
 .table-container {
     overflow-x: auto;
+    border: 2px solid black;
+    z-index: 1;
+    position: sticky;
 }
 
 .rankings-table {
@@ -24,7 +27,7 @@
 .rankings-table td {
     padding: 12px;
     text-align: center;
-    border: 2px solid black;
+    border: 1px solid black;
 }
 
 .rankings-table th {
@@ -34,6 +37,99 @@
     position: sticky;
     top: 0;
     z-index: 1;
+}
+
+/* Make first three columns sticky */
+.rankings-table th:nth-child(1),
+.rankings-table td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    background: #f8f9fa !important;
+    z-index: 10;
+    width: 60px;
+    border: 1px solid black !important;
+}
+
+.rankings-table th:nth-child(2),
+.rankings-table td:nth-child(2) {
+    position: sticky;
+    left: 60px;
+    background: #f8f9fa !important;
+    z-index: 9;
+    width: 50px;
+    border: 1px solid black !important;
+}
+
+.rankings-table th:nth-child(3),
+.rankings-table td:nth-child(3) {
+    position: sticky;
+    left: 110px;
+    background: #f8f9fa !important;
+    z-index: 8;
+    width: 150px;
+    border: 1px solid black !important;
+    text-align: left;
+    font-weight: 600;
+}
+
+/* Ensure sticky column headers have proper background */
+.rankings-table th:nth-child(1),
+.rankings-table th:nth-child(2),
+.rankings-table th:nth-child(3) {
+    background: #f8f9fa !important;
+}
+
+/* Add padding to scrollable content to prevent overlap */
+.rankings-table th:nth-child(n+4),
+.rankings-table td:nth-child(n+4) {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure table has minimum width to enable horizontal scroll */
+.rankings-table {
+    min-width: 800px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Mobile-specific fixes */
+@media (max-width: 768px) {
+
+    .rankings-table th:nth-child(1),
+    .rankings-table td:nth-child(1) {
+        position: sticky;
+        left: 0;
+        background: #f8f9fa !important;
+        z-index: 15;
+    }
+
+    .rankings-table th:nth-child(2),
+    .rankings-table td:nth-child(2) {
+        position: sticky;
+        left: 60px;
+        background: #f8f9fa !important;
+        z-index: 14;
+    }
+
+    .rankings-table th:nth-child(3),
+    .rankings-table td:nth-child(3) {
+        position: sticky;
+        left: 110px;
+        background: #f8f9fa !important;
+        z-index: 13;
+    }
+
+    .table-container {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+        position: relative;
+    }
+}
+
+/* Style for tournament point columns */
+.rankings-table td:nth-child(n+4):not(:nth-last-child(-n+7)) {
+    width: 80px;
 }
 
 .rankings-table th.vertical {

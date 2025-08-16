@@ -8,12 +8,12 @@ import {
   Player,
 } from "../../models/tournament.model";
 import { MatExpansionModule } from "@angular/material/expansion";
-import { PlayerStatsComponent } from "../player-stats/player-stats.component";
+import { TournamentDetailsComponent } from "../tournament-details/tournament-details.component";
 
 @Component({
   selector: "app-tournament-dialog",
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, PlayerStatsComponent],
+  imports: [CommonModule, MatExpansionModule, TournamentDetailsComponent],
   templateUrl: "./tournament-dialog.component.html",
   styleUrl: "./tournament-dialog.component.scss",
 })

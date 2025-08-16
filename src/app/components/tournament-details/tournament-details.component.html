@@ -199,25 +199,40 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="player-tournament-stats">
-                    <div *ngFor="let player of this.tournament().participants" class="player-stat-card">
+                    <div *ngFor="let player of this.getPlayersWithStats()" class="player-stat-card">
                         <h5>{{ player.name }}</h5>
                         <div class="player-stat-details">
+                            @let total180 = getPlayerStats(player).total180s;
+                            @if(total180 > 0){
                             <div class="stat-row">
-                                <span>180s:</span>
-                                <span>{{ getPlayerStats(player).total180s }}</span>
+                                <span>180:</span>
+                                <span>{{ total180 }}</span>
                             </div>
+                            }
+
+                            @let total171 = getPlayerStats(player).total171s;
+                            @if(total171 > 0){
                             <div class="stat-row">
-                                <span>171s:</span>
-                                <span>{{ getPlayerStats(player).total171s }}</span>
+                                <span>171:</span>
+                                <span>{{ total171 }}</span>
                             </div>
+                            }
+
+                            @let hf = getPlayerStats(player).highestFinish;
+                            @if(hf > 0){
                             <div class="stat-row">
-                                <span>Highest Finish:</span>
-                                <span>{{ getPlayerStats(player).highestFinish }}</span>
+                                <span>HF:</span>
+                                <span>{{ hf }}</span>
                             </div>
+                            }
+
+                            @let bl = getPlayerStats(player).bestLeg;
+                            @if(bl > 0){
                             <div class="stat-row">
-                                <span>Best Leg:</span>
-                                <span>{{ getPlayerStats(player).bestLeg }}</span>
+                                <span>BL:</span>
+                                <span>{{ bl }}</span>
                             </div>
+                            }
                         </div>
                     </div>
                 </div>

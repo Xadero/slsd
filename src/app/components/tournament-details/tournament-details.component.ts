@@ -310,4 +310,12 @@ export class TournamentDetailsComponent implements OnInit {
         return round;
     }
   }
+
+  public getPlayersWithStats(): Player[] {
+    return this.tournament().participants.filter(p => 
+      this.getPlayerStats(p).total180s > 0 ||
+      this.getPlayerStats(p).total171s > 0 ||
+      this.getPlayerStats(p).highestFinish > 0 ||
+      this.getPlayerStats(p).bestLeg > 0)
+  }
 }

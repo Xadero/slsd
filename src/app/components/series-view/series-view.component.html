@@ -3,6 +3,17 @@
     <h1>{{ series().name }}</h1>
 
     <div class="rankings-container">
+        <div class="view-controls">
+            <label class="checkbox-container">
+                <input 
+                    type="checkbox" 
+                    [(ngModel)]="extendedView"
+                    (change)="toggleExtendedView()"
+                />
+                <span class="checkmark"></span>
+                <span class="checkbox-label">Extended View</span>
+            </label>
+        </div>
         <div class="table-container">
             <table class="rankings-table">
                 <thead>
@@ -21,16 +32,33 @@
                         <th>HF</th>
                         <th>BL</th>
                         <th>Mecze</th>
+                        @if (extendedView) {
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(40%)">Wygrane mecze</div>
+                        </th>
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(40%)">Przegrane mecze</div>
+                        </th>
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(40%)">Wygranych meczy(%)</div>
+                        </th>
+                        }
+
                         <th>Legi</th>
+                        @if (extendedView) {
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(50%)">Wygrane legi</div>
+                        </th>
+                        <th class="vertical">
+                            <div style="transform: rotate(-90deg) translateX(40%)">Przegrane legi</div>
+                        </th>
                         <th class="vertical">
                             <div style="transform: rotate(-90deg) translateX(50%)">Bilans legów</div>
                         </th>
                         <th class="vertical">
-                            <div style="transform: rotate(-90deg) translateX(40%)">Wygranych legów</div>
+                            <div style="transform: rotate(-90deg) translateX(40%)">Wygranych legów(%)</div>
                         </th>
-                        <th class="vertical">
-                            <div style="transform: rotate(-90deg) translateX(40%)">Wygranych meczy</div>
-                        </th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -55,12 +83,20 @@
                         <td>{{ ranking.highestFinish }}</td>
                         <td>{{ ranking.bestLeg }}</td>
                         <td>{{ ranking.matchesPlayed }}</td>
+                        @if (extendedView) {
+                        <td>{{ ranking.matchesWon }}</td>
+                        <td>{{ ranking.matchesPlayed - ranking.matchesWon }}</td>
+                        <td>{{ ranking.wonMatchesPercentage | number : "1.1-1" }}%</td>
+                        }
                         <td>{{ ranking.legsPlayed }}</td>
+                        @if(extendedView) {
+                        <td>{{ ranking.legsWon }}</td>
+                        <td>{{ ranking.legsPlayed - ranking.legsWon }}</td>
                         <td
                             [ngStyle]="{'background-color': ranking.legDifference === 0 ? '#f7f30a' : (ranking.legDifference > 0 ? '#33ab15' : '#d12815') }">
                             {{ ranking.legDifference }}</td>
                         <td>{{ ranking.wonLegsPercentage | number : "1.1-1" }}%</td>
-                        <td>{{ ranking.wonMatchesPercentage | number : "1.1-1" }}%</td>
+                        }
                     </tr>
                 </tbody>
             </table>

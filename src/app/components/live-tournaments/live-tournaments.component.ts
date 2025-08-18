@@ -89,7 +89,7 @@ import { interval, Subscription } from 'rxjs';
           matches: matches.length,
           wins,
           losses: matches.length - wins,
-          points: wins * 2,
+          points: wins,
           legsWon,
           legsConceded,
           legDifference: legsWon - legsConceded

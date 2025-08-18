@@ -9,6 +9,13 @@
 
     <!-- Tournament Rankings -->
     <div class="rankings-container">
+        <div class="view-controls">
+            <label class="checkbox-container">
+                <input type="checkbox" [(ngModel)]="extendedView" (change)="toggleExtendedView()" />
+                <span class="checkmark"></span>
+                <span class="checkbox-label">Widok rozszerzony</span>
+            </label>
+        </div>
         <div class="table-container">
             <table class="rankings-table">
                 <thead>
@@ -22,9 +29,15 @@
                         <th>BL</th>
                         <th>Legi</th>
                         <th>Bilans legów</th>
-                        <th>Wygranych legów</th>
+                        @if (extendedView) {
+                        <th>Wygrane legi</th>
+                        <th>Przegrane legi</th>
+                        <th>Wygranych legów (%)</th>
+                        }
                         <th>Mecze</th>
-                        <th>Wygranych meczy</th>
+                        @if (extendedView) {
+                        <th>Wygranych meczów (%)</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -39,18 +52,25 @@
                         <td>{{ getPlayerStats(player).bestLeg }}</td>
                         <td>{{ getPlayerStats(player).legsPlayed }}</td>
                         <td>{{ getPlayerStats(player).legDifference }}</td>
+                        @if (extendedView) {
+                        <td>{{ getPlayerStats(player).legsWon }}</td>
+                        <td>{{ getPlayerStats(player).legsPlayed - getPlayerStats(player).legsWon }}</td>
                         <td>
                             {{
                             getPlayerStats(player).wonLegsPercentage | number : "1.1-1"
                             }}%
                         </td>
+                        }
+
                         <td>{{ getPlayerStats(player).matchesPlayed }}</td>
+                        @if (extendedView) {
                         <td>
                             {{
                             getPlayerStats(player).wonMatchesPercentage
                             | number : "1.1-1"
                             }}%
                         </td>
+                        }
                     </tr>
                 </tbody>
             </table>
@@ -110,7 +130,9 @@
     <div *ngIf="this.tournament().knockoutStageStarted" class="section">
         <h3>Faza pucharowa</h3>
         <div class="knockout-results">
-            <div *ngFor="let round of ['Round-16','Quarter-Finals', 'Semi-Finals']" class="round-results">
+            @let rounds = getMatchesByRound('Round-16').length > 0 ? ['Round-16','Quarter-Finals', 'Semi-Finals'] :
+            ['Quarter-Finals', 'Semi-Finals'];
+            <div *ngFor="let round of rounds" class="round-results">
                 <h4>{{ translateRoundName(round) }}</h4>
                 <table class="results-table">
                     <tbody>

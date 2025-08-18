@@ -692,7 +692,7 @@ export class TournamentService {
         matches: matches.length,
         wins,
         losses: matches.length - wins,
-        points: wins * 2,
+        points: wins,
         legDifference: legsWon - legsConceded,
         headToHead: new Map() // Will be filled later
       };
@@ -922,6 +922,18 @@ export class TournamentService {
       .sort((a, b) => {
         const pointsDifference = b.totalPoints - a.totalPoints;
         if (pointsDifference === 0) {
+          const legDifference = b.legDifference - a.legDifference;
+          if (legDifference === 0) {
+            const wonLegsPercentageDifference = b.wonLegsPercentage - a.wonLegsPercentage;
+            if (wonLegsPercentageDifference === 0) {
+              const wonMatchesPercentageDifference = b.wonMatchesPercentage - a.wonMatchesPercentage;
+              if (wonMatchesPercentageDifference === 0) {
+                return wonMatchesPercentageDifference;
+              }
+              return wonLegsPercentageDifference;
+            }
+            return wonLegsPercentageDifference;
+          }
           return b.legDifference - a.legDifference;
         }
         return pointsDifference;
@@ -1123,12 +1135,10 @@ export class TournamentService {
         }
       }
       else {
-        if (playerPosition === 2) {
+        if (playerPosition === 2 || playerPosition === 3) {
           points = 14;
-        } else if (playerPosition === 3) {
-          points = 8;
         } else if (playerPosition > 3) {
-          points = 4;
+          points = 8;
         }
       }
     });

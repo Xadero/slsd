@@ -8,21 +8,25 @@ import {
 } from "../../models/tournament.model";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { PlayerStatsComponent } from "../player-stats/player-stats.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: "app-tournament-details",
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, PlayerStatsComponent],
+  imports: [CommonModule, MatExpansionModule, PlayerStatsComponent, FormsModule],
   templateUrl: "./tournament-details.component.html",
   styleUrls: ["./tournament-details.component.scss"],
 })
 export class TournamentDetailsComponent implements OnInit {
   tournament = input.required<Tournament>();
   readonly panelOpenState = signal(false);
+  private readonly EXTENDED_VIEW_KEY = 'tournament-extended-view';
+  public extendedView: boolean = false;
   constructor(private tournamentService: TournamentService) {}
 
   ngOnInit() {
-
+    const savedPreference = localStorage.getItem(this.EXTENDED_VIEW_KEY);
+    this.extendedView = savedPreference === 'true';
   }
 
   getTournamentRankings(): Player[] {
@@ -118,12 +122,10 @@ export class TournamentDetailsComponent implements OnInit {
         }
       }
       else {
-        if (playerPosition === 2) {
+        if (playerPosition === 2 || playerPosition === 3) {
           points = 14;
-        } else if (playerPosition === 3) {
-          points = 8;
         } else if (playerPosition > 3) {
-          points = 4;
+          points = 8;
         }
       }
     });
@@ -317,5 +319,9 @@ export class TournamentDetailsComponent implements OnInit {
       this.getPlayerStats(p).total171s > 0 ||
       this.getPlayerStats(p).highestFinish > 0 ||
       this.getPlayerStats(p).bestLeg > 0)
+  }
+
+    toggleExtendedView() {
+    localStorage.setItem(this.EXTENDED_VIEW_KEY, this.extendedView.toString());
   }
 }

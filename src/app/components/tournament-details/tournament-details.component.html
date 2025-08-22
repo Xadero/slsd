@@ -45,28 +45,29 @@
                         [ngStyle]="{ 'background-color': i + 1 === 1 ? 'gold' : i + 1 === 2 ? 'silver' : i + 1 === 3 ? '#cd7f32' : 'white' }">
                         <td>{{ i + 1 }}</td>
                         <td>{{ player.name }}</td>
+                        @let playerStats = getPlayerStats(player);
                         <td>{{ getTournamentPoints(player) }}</td>
-                        <td>{{ getPlayerStats(player).total180s }}</td>
-                        <td>{{ getPlayerStats(player).total171s }}</td>
-                        <td>{{ getPlayerStats(player).highestFinish }}</td>
-                        <td>{{ getPlayerStats(player).bestLeg }}</td>
-                        <td>{{ getPlayerStats(player).legsPlayed }}</td>
-                        <td>{{ getPlayerStats(player).legDifference }}</td>
+                        <td>{{ playerStats.total180s !== 0 ? playerStats.total180s : '' }}</td>
+                        <td>{{ playerStats.total171s !== 0 ? playerStats.total171s : '' }}</td>
+                        <td>{{ playerStats.highestFinish !== 0 ? playerStats.highestFinish : '' }}</td>
+                        <td>{{ playerStats.bestLeg !== 0 ? playerStats.bestLeg: ''}}</td>
+                        <td>{{ playerStats.legsPlayed }}</td>
+                        <td>{{ playerStats.legDifference }}</td>
                         @if (extendedView) {
-                        <td>{{ getPlayerStats(player).legsWon }}</td>
-                        <td>{{ getPlayerStats(player).legsPlayed - getPlayerStats(player).legsWon }}</td>
+                        <td>{{ playerStats.legsWon }}</td>
+                        <td>{{ playerStats.legsPlayed -playerStats.legsWon }}</td>
                         <td>
                             {{
-                            getPlayerStats(player).wonLegsPercentage | number : "1.1-1"
+                            playerStats.wonLegsPercentage | number : "1.1-1"
                             }}%
                         </td>
                         }
 
-                        <td>{{ getPlayerStats(player).matchesPlayed }}</td>
+                        <td>{{ playerStats.matchesPlayed }}</td>
                         @if (extendedView) {
                         <td>
                             {{
-                            getPlayerStats(player).wonMatchesPercentage
+                            playerStats.wonMatchesPercentage
                             | number : "1.1-1"
                             }}%
                         </td>

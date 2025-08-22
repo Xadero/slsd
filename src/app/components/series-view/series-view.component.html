@@ -73,10 +73,10 @@
                             {{ !!points ? points : '-' }}
                         </td>
                         <td style="font-weight: bold;">{{ ranking.totalPoints }}</td>
-                        <td>{{ ranking.total180s }}</td>
-                        <td>{{ ranking.total171s }}</td>
-                        <td>{{ ranking.highestFinish }}</td>
-                        <td>{{ ranking.bestLeg }}</td>
+                        <td>{{ ranking.total180s !== 0 ? ranking.total180s : '' }}</td>
+                        <td>{{ ranking.total171s !== 0 ? ranking.total171s : '' }}</td>
+                        <td>{{ ranking.highestFinish !== 0 ? ranking.highestFinish : '' }}</td>
+                        <td>{{ ranking.bestLeg !== 0 ? ranking.bestLeg: ''}}</td>
                         <td
                             [ngStyle]="{'background-color': ranking.legDifference === 0 ? '#f7f30a' : (ranking.legDifference > 0 ? '#33ab15' : '#d12815') }">
                             {{ ranking.legDifference }}</td>
